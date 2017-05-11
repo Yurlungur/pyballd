@@ -2,7 +2,7 @@
 
 """domain.py
 Author: Jonah Miller (jonah.maxwell.miller@gmail.com)
-Time-stamp: <2017-05-11 18:47:17 (jmiller)>
+Time-stamp: <2017-05-11 19:19:14 (jmiller)>
 
 A component of the pyballd library. This module defines the domain and
 coordinate system used for pyballd:
@@ -80,6 +80,16 @@ class PyballdStencil(PseudoSpectralStencil2D):
             return self.differentiate(df,0,ordery)
         
         return self.differentiate(grid_func,0,order_theta)
+
+    def inner_product_on_sphere(self,gf1,gf2):
+        "Inner product using spherical coordinates"
+        factors = [s.get_scale_factor() for s in self.stencils]
+        factor = np.prod(factors)
+        # exclude last point because it diverges
+        integrand = (gf1*self.weights2D*gf2*(self.R**2)*np.sin(self.THETA))[:-1,0]
+        integral_unit_cell = np.sum(integrand)
+        integral_physical = integral_unit_cell*factor*(2*np.pi)
+        return integral_physical
 
     def get_x_from_r(self,r):
         x = np.sqrt(r**2 - self.r_h**2)
