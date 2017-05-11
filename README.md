@@ -4,6 +4,14 @@ pyballd
 A Pseudospectral Elliptic Solver for Axisymmetric Problems Implemented
 in Python
 
+# Domain
+
+The appropriate domain for an axisymmetric problem is
+
+![axisymmetric domain base](eqns/domain_base.gif)
+
+where r<sub>h</sub> is some minimum radius.
+
 # Pseudospectral Derivatives
 
 Pyballd uses Legendre pseudospectral derivatives to attain very high
