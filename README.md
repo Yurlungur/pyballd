@@ -10,7 +10,17 @@ The appropriate domain for an axisymmetric problem is
 
 ![axisymmetric domain base](eqns/domain_base.gif)
 
-where r<sub>h</sub> is some minimum radius.
+where *r<sub>h</sub>* is some minimum radius. Infinite domains are
+difficult to handle. Therefore, following the work of Herdeiro and
+Radu [1], we define
+
+![definition of x](eqns/def_x.gif)
+
+and
+
+![definition of X](eqns/def_X.gif)
+
+so that *X* is defined on the domain *[0,1]*. 
 
 # Pseudospectral Derivatives
 
@@ -27,3 +37,7 @@ decays exponentially with the number of points. This is called
 
 ![evanescent convergence](figs/orthopoly_errors.png)
 
+# References
+
+[1] Herderio, Radu, Runarrson. Kerr black holes with Proca
+hair. *Classical and Quantum Gravity* **33-15** (2016).
