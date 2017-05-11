@@ -20,7 +20,13 @@ and
 
 ![definition of X](eqns/def_X.gif)
 
-so that *X* is defined on the domain *[0,1]*. 
+so that *X* is defined on the domain *[0,1]*. We perform our
+differentiation on *X*, which has no effect on the original PDE system
+except the introduction of Jacobian terms of the form
+
+![jacobian terms](eqnas/X_Jacobian.gif)
+
+in a few places.
 
 # Pseudospectral Derivatives
 
