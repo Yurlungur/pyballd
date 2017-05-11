@@ -26,7 +26,9 @@ except the introduction of Jacobian terms of the form
 
 ![jacobian terms](eqns/X_Jacobian.gif)
 
-in a few places.
+in a few places. Since one may want to assume additional (or
+different!) symmetry in the longitudinal direction, we do not impose
+any restriction there.
 
 # Pseudospectral Derivatives
 
