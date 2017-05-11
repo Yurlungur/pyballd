@@ -3,7 +3,7 @@
 """
 orthopoly.py
 Author: Jonah Miller (jonah.maxwell.miller@gmail.com)
-Time-stamp: <2017-05-11 10:37:26 (jmiller)>
+Time-stamp: <2017-05-11 17:03:47 (jmiller)>
 
 A module for orthogonal polynomials for pseudospectral methods in Python
 """
@@ -26,10 +26,7 @@ from numpy import linalg
 LOCAL_XMIN = -1 # Maximum and min values of reference cell
 LOCAL_XMAX = 1
 poly = polynomial.legendre.Legendre  # A class for orthogonal polynomials
-# method for generating 2D Vandermonde matrices
-pvander2d = poynomial.legendre.legvander2d
-# a method for evaluating a 2D poynomial 
-pgrid2d = poynomial.legendre.leggrid2d
+pval2d = polynomial.legendre.legval2d
 # ======================================================================
 
 
@@ -54,7 +51,7 @@ def get_integration_weights(order,nodes=None):
     represent.
     See: https://en.wikipedia.org/wiki/Gaussian_quadrature
     """
-    if nodes == None:
+    if nodes is None:
         nodes=get_quadrature_points(order)
     interior_weights = 2/((order+1)*order*poly.basis(order)(nodes[1:-1])**2)
     boundary_weights = np.array([1-0.5*np.sum(interior_weights)])
@@ -70,7 +67,7 @@ def get_vandermonde_matrices(order,nodes=None):
     and vice-versa respectively. Requires the order of the element/method
     as input.
     """
-    if nodes == None:
+    if nodes is None:
         nodes = get_quadrature_points(order)
     s2c = np.zeros((order+1,order+1),dtype=float)
     for i in range(order+1):
@@ -99,9 +96,9 @@ def get_nodal_differentiation_matrix(order,
     It goes without saying that this differentiation matrix is for the
     reference cell.
     """
-    if Dmodal == None:
+    if Dmodal is None:
         Dmodal = get_modal_differentiation_matrix(order)
-    if s2c == None or c2s == None:
+    if s2c is None or c2s is None:
         s2c,c2s = get_vandermonde_matrices(order)
     return np.dot(s2c,np.dot(Dmodal,c2s))
 # ======================================================================
@@ -114,11 +111,12 @@ def get_colocation_points(order,xmin=LOCAL_XMIN,xmax=LOCAL_XMAX,quad_points=None
     """
     Generates order+1 colocation points on the domain [xmin,xmax]
     """
-    if quad_points == None:
+    if quad_points is None:
         quad_points = get_quadrature_points(order)
-    scale_factor = (xmax-float(xmin))/(LOCAL_XMAX-float(LOCAL_XMIN))
-    shift_factor = xmin-float(LOCAL_XMIN)
-    return scale_factor*(shift_factor + quad_points)
+    local_width=float(LOCAL_XMAX-LOCAL_XMIN)
+    physical_width = float(xmax-xmin)
+    x = xmin + (LOCAL_XMAX+quad_points)*physical_width/local_width
+    return x
 
 def get_global_differentiation_matrix(order,
                                       xmin=LOCAL_XMIN,
@@ -201,6 +199,10 @@ class PseudoSpectralStencil1D:
                                                     self.s2c,self.c2s,
                                                     self.Dmodal)
 
+    def get_scale_factor(self):
+        "Jacobian between local and global"
+        return (self.xmax-float(self.xmin))/(LOCAL_XMAX-float(LOCAL_XMIN))
+
     def get_x(self):
         """
         Returns the colocation points
@@ -245,19 +247,21 @@ class PseudoSpectralStencil2D:
                          PseudoSpectralStencil1D(ordery,ymin,ymax)]
         self.stencil_x,self.stencil_y = self.stencils
         self.quads = [s.quads for s in self.stencils]
-        self.x,self.y = self.quads
-        self.quads2D = np.meshgrid(*self.squads,indexing='ij')
-        self.X,self.Y = self.quads2D
-        self.s2c2d = pvander2d(self.x,self.y,[orderx,ordery])
-        self.c2s2d = linalg.inv(c2s2d)
+        self.colocs = [s.colocation_points for s in self.stencils]
+        self.x,self.y = self.colocs
+        self.colocs2d = np.meshgrid(*self.colocs,indexing='ij')
+        self.X,self.Y = self.colocs2d
+        self.weights = [s.weights for s in self.stencils]
+        self.weights_x,self.weights_y = self.weights
+        self.weights2D = np.tensordot(*self.weights,axes=0)
 
     def get_x1d(self,axis=0):
         "Returns the colocation points on a given axis"
-        return self.quads[axis]
+        return self.colocs[axis]
 
     def get_x2d(self):
         "Returns the 2d grid"
-        return self.quads2D
+        return self.colocs2d
 
     def differentiate(self,grid_func,orderx,ordery):
         """Given a grid function defined on the colocation points,
@@ -272,26 +276,43 @@ class PseudoSpectralStencil2D:
             df = np.empty_like(grid_func)
             for j in range(df.shape[1]):
                 df[:,j] = self.stencil_x.differentiate(grid_func[:,j],orderx)
-            return self.differentiate(df,orderx-1,ordery)
+            return self.differentiate(df,0,ordery)
 
         if ordery > 0:
             df = np.empty_like(grid_func)
             for i in range(df.shape[0]):
                 df[i,:] = self.stencil_y.differentiate(grid_func[i,:],ordery)
-            return self.differentiate(df,orderx,ordery-1)
+            return self.differentiate(df,orderx,0)
 
         #if orderx == 0 and ordery == 0:
         return grid_func
 
-    def to_continuum(self,grid_func):
-        """Given a grid function defined on the colocation points,
-        returns a function f(x,y), which can be evaluated anywhere
-        in the continuum
+    def inner_product(self,gf1,gf2):
+        """Calculates the 2D inner product between grid functions
+        gf1 and gf2 using the appropriate quadrature rule
         """
-        coeffs = np.dot(self.c2s2d,
-                        np.flatten(grid_func)).reshape(self.orderx,
-                                                       self.ordery)
-        f = lambda x,y: pgrid2d(x,y,coeffs)
+        factors = [s.get_scale_factor() for s in self.stencils]
+        factor = np.prod(factors)
+        integrand = gf1*self.weights2D*gf2
+        integral_unit_cell = np.sum(integrand)
+        integral_physical = integral_unit_cell*factor
+        return integral_physical
+
+    def norm2(self,grid_func):
+        """Calculates the 2norm of grid_func"""
+        factor = np.prod([(s.xmax-s.xmin) for s in self.stencils])
+        integral = self.inner_product(grid_func,grid_func) / factor
+        norm2 = np.sqrt(integral)
+        return norm2
+
+    def to_continuum(grid_func):
+        coeffs_x = np.empty_like(grid_func)
+        for j in range(coeffs_x.shape[1]):
+            coeffs_x[:,j] = np.dot(self.stencil_x.c2s,grid_func[:,j])
+        coeffs_xy = np.empty_like(grid_func)
+        for i in range(coeffs_xy.shape[0]):
+            coeffs_xy[i,:] = np.dot(self.stencil_y.c2s,coeffs_x[i,:])
+        f = lambda x,y: pval2d(x,y,coeffs_xy)
         return f
 
     def __call__(self,grid_func,x,y):
