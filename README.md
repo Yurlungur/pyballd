@@ -20,7 +20,7 @@ for most boundary situations or
 
 ![definition of x](eqns/def_x_bh.gif)
 
-when *r<sub>h</sub>* is a black hole event horizon and
+when *r<sub>h</sub>* is a black hole event horizon. We then define
 
 ![definition of X](eqns/def_X.gif)
 
