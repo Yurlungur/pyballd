@@ -12,11 +12,15 @@ The appropriate domain for an axisymmetric problem is
 
 where *r<sub>h</sub>* is some minimum radius. Infinite domains are
 difficult to handle. Therefore, following the work of Herdeiro and
-Radu [1], we define
+Radu [1], we define either
 
-![definition of x](eqns/def_x.gif)
+![definition of x for most boundaries](eqns/def_x_dirichlet.gif)
 
-and
+for most boundary situations or 
+
+![definition of x](eqns/def_x_bh.gif)
+
+when *r<sub>h</sub>* is a black hole event horizon and
 
 ![definition of X](eqns/def_X.gif)
 
