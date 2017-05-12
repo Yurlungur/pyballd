@@ -3,7 +3,7 @@
 """
 orthopoly.py
 Author: Jonah Miller (jonah.maxwell.miller@gmail.com)
-Time-stamp: <2017-05-11 17:03:47 (jmiller)>
+Time-stamp: <2017-05-12 10:53:32 (jmiller)>
 
 A module for orthogonal polynomials for pseudospectral methods in Python
 """
@@ -233,7 +233,7 @@ class PseudoSpectralStencil1D:
 # ======================================================================
 # Higher dimensions
 # ======================================================================
-class PseudoSpectralStencil2D:
+class PseudoSpectralStencil2D(object):
     """Given an order in x and y and a domain
     [xmin,xmax]x[ymin,ymax],
     defines a psuedospectral stencil in two dimensions
