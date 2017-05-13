@@ -1,8 +1,25 @@
 pyballd
 =======
 
+Author: Jonah Miller (jonah.maxwell.miller@gmail.com)
+
 A Pseudospectral Elliptic Solver for Axisymmetric Problems Implemented
 in Python
+
+# Pseudospectral Derivatives
+
+Pyballd uses Legendre pseudospectral derivatives to attain very high
+accuracy with fairly low resolution. For example, if we numerically
+take second-order derivatives of this function:
+
+![analytic function](figs/test_function.png)
+
+and vary the number of points (or alternatively the maximum order of
+Legendre polynomial used for differentiation), we find that our error
+decays exponentially with the number of points. This is called
+"spectral" or "evanescent" convergence:
+
+![evanescent convergence](figs/orthopoly_errors.png)
 
 # Domain
 
@@ -34,20 +51,19 @@ in a few places. Since one may want to assume additional (or
 different!) symmetry in the longitudinal direction, we do not impose
 any restriction there.
 
-# Pseudospectral Derivatives
+## Jacobian for the Domain
 
-Pyballd uses Legendre pseudospectral derivatives to attain very high
-accuracy with fairly low resolution. For example, if we numerically
-take second-order derivatives of this function:
+When *x* is defined as 
 
-![analytic function](figs/test_function.png)
+![definition of x for most boundaries](eqns/def_x_dirichlet.gif)
 
-and vary the number of points (or alternatively the maximum order of
-Legendre polynomial used for differentiation), we find that our error
-decays exponentially with the number of points. This is called
-"spectral" or "evanescent" convergence:
+the Jacobian for the coordinate transformation looks like
 
-![evanescent convergence](figs/orthopoly_errors.png)
+![Jacobian for the coordinate transformation](figs/domain_dXdr.png)
+
+The primary advantage is that *1/r<sup>n</sup>* falloffs are linear in
+this coordinate system and so a low-order spectral method will
+represent the solution exactly.
 
 # References
 
