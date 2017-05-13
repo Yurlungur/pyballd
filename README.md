@@ -6,6 +6,19 @@ Author: Jonah Miller (jonah.maxwell.miller@gmail.com)
 A Pseudospectral Elliptic Solver for Axisymmetric Problems Implemented
 in Python
 
+# The Basic Idea
+
+In Pyballd, an elliptic system is defined via a *residual.* A residual
+
+![residual](eqns/residual.gif)
+
+acts on a state vector *u* and its first and second derivatives in (in
+our case, axisymmetry), *r* and &#952;. If
+
+![residual vanishes](eqns/residual_vanishes.gif)
+
+then *u* is a solution to the PDE.
+
 # Pseudospectral Derivatives
 
 Pyballd uses Legendre pseudospectral derivatives to attain very high
