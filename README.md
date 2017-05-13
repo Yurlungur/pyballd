@@ -154,6 +154,73 @@ For simplicity, we further restrict ourselves to the source-free case and attain
 
 We would like to solve this problem using pyballd.
 
+We begin by importing `pyballd` and `numpy`.
+
+```python
+import pyballd
+import numpy as np
+```
+
+`pyballd` expects a residual, which defines the PDE system. The PDE is
+satisfied when the residual vanishes. We define ours as
+
+```python
+def residual(r,theta,u,d):
+    out = (2*r*d(u,1,0)
+           + r*r*d(u,2,0)
+           + np.cos(theta)*d(u,0,1)
+           + np.sin(theta)*d(u,0,2))
+    return out
+```
+
+Here `d` is a derivative operator. So `d(u,2,0)` corresponds to two
+derivatives with respect to *r* of *u*, while `d(u,0,2)` corresponds
+to two derivatives with respect to &#952;.
+
+It allso expects a boundary condition for the inner boundary. We
+choose a Dirichlet boundary condition and define it as:
+
+```python
+def bdry_X_inner(theta,u,d):
+	k = 3
+    out = u - np.cos(2*np.pi*k*theta)
+    return out
+```
+
+This works a lot like `residual` defined above. However, it will only
+be evaluated at the inner boundary. The boundary condition is
+satisfied when `bdry_X_inner` vanishes.
+
+Nonlinear elliptic systems are not necessarily unique. (And even
+linear ones may be difficult to uniquely solve numerically.)
+Therefore, we must feed the solver with an initial guess for the
+solution. We define ours as
+
+```python
+def initial_guess(r,theta):
+    out = np.cos(2*k*np.pi*theta)/r
+    return out
+```
+
+which is definitely not the correct solution. However, it should
+be sufficiently close to the true solution to allow for convergence.
+
+Finally, we ask `pyballd` to generate a solution by calling
+`pyballd.pde_solve_once`. For example:
+
+```python
+R,X,THETA,SOLN = pyballd.pde_solve_once(residual,
+                                        r_h = 1.0,
+                                        order_X = 60,
+                                        order_theta = 24,
+                                        bdry_X_inner = bdry_X_inner,
+                                        initial_guess = initial_guess)
+```
+
+`pyballd.pde_solve_once` has a large number of options and
+defaults. For a full description of of these, see the help string
+associated with it.
+
 # References
 
 [1] Herderio, Radu, Runarrson. Kerr black holes with Proca
