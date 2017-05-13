@@ -51,7 +51,7 @@ in a few places. Since one may want to assume additional (or
 different!) symmetry in the longitudinal direction, we do not impose
 any restriction there.
 
-## Jacobian for the Domain
+## Jacobian for the Compactified Domain
 
 When *x* is defined as 
 
@@ -64,6 +64,31 @@ the Jacobian for the coordinate transformation looks like
 The primary advantage is that *1/r<sup>n</sup>* falloffs are linear in
 this coordinate system and so a low-order spectral method will
 represent the solution exactly.
+
+## Convergence on the Compactified Domain
+
+For more complex functions, such as this one:
+
+![test function on compact domain](figs/domain_test_function_2d.png)
+
+which has this derivative
+
+![derivative of test function on compact domain](figs/deriv_domain_test_function_2d.png)
+
+On the compact domain (on the equator), this function becomes
+
+![test function on equator](figs/domain_test_function.png)
+
+with derivative
+
+![derivative of test function on equator](figs/deriv_domain_test_function.png)
+
+In this setup, our convergence becomes substantially slower. However,
+we still retain spectral convergence as this plot of the maximum of
+the errors in the derivative of the above function on the
+compactified domain shows:
+
+![errors on compactified domain](figs/domain_l1_errors.png)
 
 # References
 
