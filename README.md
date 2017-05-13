@@ -90,7 +90,7 @@ compactified domain shows:
 
 ![errors on compactified domain](figs/domain_l1_errors.png)
 
-# The Basic Idea
+# Solving an Elliptic PDE
 
 In Pyballd, an elliptic system is defined via a *residual.* A residual
 
@@ -108,7 +108,7 @@ conditions, which select for the particular solution. At infinity
 (*X=1*), we automatically demand that the solution must vanish. (In
 other words, we demand that all solutions are square-integrable.)
 
-Either Dirichlet or Von-Neumann boundary conditions can be imposed on
+Dirichlet, Von-Neumann, or Robin boundary conditions can be imposed on
 the inner radius (*r_h*), the position of minimum &#952; (often the
 axis of symmetry), and the position of maximum &#952; (often the axis
 of symmetry or the equator).

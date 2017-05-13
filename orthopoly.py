@@ -3,7 +3,7 @@
 """
 orthopoly.py
 Author: Jonah Miller (jonah.maxwell.miller@gmail.com)
-Time-stamp: <2017-05-12 10:53:32 (jmiller)>
+Time-stamp: <2017-05-13 14:20:23 (jmiller)>
 
 A module for orthogonal polynomials for pseudospectral methods in Python
 """
@@ -254,6 +254,15 @@ class PseudoSpectralStencil2D(object):
         self.weights = [s.weights for s in self.stencils]
         self.weights_x,self.weights_y = self.weights
         self.weights2D = np.tensordot(*self.weights,axes=0)
+
+    @classmethod
+    def from_grid_function(cls,grid_func,
+                           xmin,xmax,
+                           ymin,ymax):
+        nx,ny = grid_func.shape
+        orderx,ordery = nx-1,ny-1
+        s = cls(orderx,xmin,xmax,ordery,ymin,ymax)
+        return s
 
     def get_x1d(self,axis=0):
         "Returns the colocation points on a given axis"
