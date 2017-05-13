@@ -125,6 +125,35 @@ boundary such that
 which is a regularity condition we need to impose on solutions in
 these coordinates.
 
+## Pyballd's API
+
+Pyballd simply requires that the user pass in functions that vanish
+when the residual and boundary conditions are satisfied. Along with
+information about the domain, such as the value of *r<sub>h</sub>*,
+this is sufficient information to construct a solution. 
+
+## An Example: Poisson's Equation
+
+Poisson's equation is
+
+![poissons equation generic](eqns/poisson_generic.gif),
+
+or, in spherical coordinates it is
+
+![poisson in spherical coordinates](eqns/poisson_spherical_coordinates.gif).
+
+If we assume axisymmetry so that the azimuthal derivatives vanish and
+multiply both sides of the equation by the appropriate factors, we
+attain
+
+![poisson in axisymmetry](eqns/poisson_axisymmetry.gif).
+
+For simplicity, we further restrict ourselves to the source-free case and attain
+
+![lapplace eqn in axisymmetry](eqns/lapplace_axisymmetry.gif).
+
+We would like to solve this problem using pyballd.
+
 # References
 
 [1] Herderio, Radu, Runarrson. Kerr black holes with Proca

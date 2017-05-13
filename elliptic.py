@@ -2,13 +2,12 @@
 
 """elliptic.py
 Author: Jonah Miller (jonah.maxwell.miller@gmail.com)
-Time-stamp: <2017-05-13 15:46:23 (jmiller)>
+Time-stamp: <2017-05-13 15:47:06 (jmiller)>
 
 This is a module for pyballd. It contains the routines required for
 solving elliptic systems.
 """
 
-from enum import Enum
 import numpy as np
 import scipy as sp
 from scipy import optimize
