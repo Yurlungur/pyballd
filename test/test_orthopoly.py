@@ -3,13 +3,14 @@
 """
 test_orthopoly.py
 Author: Jonah Miller (jonah.maxwell.miller@gmail.com)
-Time-stamp: <2017-05-11 17:38:47 (jmiller)>
+Time-stamp: <2017-05-13 16:24:23 (jmiller)>
 
 Tests the orthopoly module.
 """
 
 from __future__ import print_function
-from orthopoly import PseudoSpectralStencil2D
+import pyballd
+from pyballd.orthopoly import PseudoSpectralStencil2D
 import matplotlib as mpl
 from matplotlib import pyplot as plt
 import numpy as np

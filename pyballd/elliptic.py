@@ -2,7 +2,7 @@
 
 """elliptic.py
 Author: Jonah Miller (jonah.maxwell.miller@gmail.com)
-Time-stamp: <2017-05-13 15:47:06 (jmiller)>
+Time-stamp: <2017-05-13 16:05:26 (jmiller)>
 
 This is a module for pyballd. It contains the routines required for
 solving elliptic systems.
@@ -41,7 +41,7 @@ def pde_solve_once(residual,
                    theta_max      = DEFAULT_THETA_MAX,
                    order_X        = DEFAULT_ORDER_X,
                    order_theta    = DEFAULT_ORDER_THETA,
-                   cmp_type       = 'standard'
+                   cmp_type       = 'standard',
                    bdry_X_inner   = DEFAULT_BDRY_X_INNER,
                    bdry_theta_min = DEFAULT_BDRY_THETA_MIN,
                    bdry_theta_max = DEFAULT_BDRY_THETA_MAX,
