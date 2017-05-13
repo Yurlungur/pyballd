@@ -2,7 +2,7 @@
 
 """elliptic.py
 Author: Jonah Miller (jonah.maxwell.miller@gmail.com)
-Time-stamp: <2017-05-13 14:58:49 (jmiller)>
+Time-stamp: <2017-05-13 15:46:23 (jmiller)>
 
 This is a module for pyballd. It contains the routines required for
 solving elliptic systems.
@@ -11,26 +11,43 @@ solving elliptic systems.
 from enum import Enum
 import numpy as np
 import scipy as sp
+from scipy import optimize
+import domain
 
-DEFAULT_ORDER_X = 100
+DEFAULT_ORDER_X = 120
 DEFAULT_ORDER_THETA = 24
 DEFAULT_R_H = 1.
 DEFAULT_THETA_MIN = 0.
 DEFAULT_THETA_MAX = np.pi
 
-CmpType = Enum('standard','BH')
+def DEFAULT_BDRY_X_INNER(theta,u,d):
+    out = u
+    return out
+
+def DEFAULT_BDRY_THETA_MIN(r,u,d):
+    out = d(u,0,1)
+    return out
+
+def DEFAULT_BDRY_THETA_MAX(r,u,d):
+    out = d(u,0,1)
+    return out
+
+def DEFAULT_INITIAL_GUESS(r,theta):
+    out = 0.*theta
+    return out
 
 def pde_solve_once(residual,
-                   r_h = DEFAULT_R_H
-                   theta_min = DEFAULT_THETA_MIN,
-                   theta_max = DEFAULT_THETA_MAX,
-                   order_X = DEFAULT_ORDER_X,
-                   order_theta = DEFAULT_ORDER_THETA,
-                   cmp_type = CmpType.standard,
-                   bdry_X_inner = None,
-                   bdry_theta_min = None,
-                   bdry_theta_max = None,
-                   initial_guess = None
+                   r_h            = DEFAULT_R_H,
+                   theta_min      = DEFAULT_THETA_MIN,
+                   theta_max      = DEFAULT_THETA_MAX,
+                   order_X        = DEFAULT_ORDER_X,
+                   order_theta    = DEFAULT_ORDER_THETA,
+                   cmp_type       = 'standard'
+                   bdry_X_inner   = DEFAULT_BDRY_X_INNER,
+                   bdry_theta_min = DEFAULT_BDRY_THETA_MIN,
+                   bdry_theta_max = DEFAULT_BDRY_THETA_MAX,
+                   initial_guess  = DEFAULT_INITIAL_GUESS,
+                   f_tol          = 1e-8
                    ):
     """Solves the elliptic pde system defined by residual.
     See the README for more details.
@@ -100,4 +117,53 @@ def pde_solve_once(residual,
                       u(r=infinity,theta) will automatically be set to zero.
                       However, the initial guess should be compatible with
                       this square integrability condition.
+
+    f_tol          -- The tolerance on the residual for the
+                      nonlinear vector root finder.
     """
+    if cmp_type is 'standard':
+        Stencil = domain.PyballdStencil
+    elif cmp_type is 'BH':
+        Stencil = domain.PyballdStencilBH
+    else:
+        raise ValueError("Invalid compactification type. "
+                         +"Valid options are: 'standard','bh'")
+    
+    # define domain
+    s = Stencil(order_X,r_h,
+                order_theta,
+                theta_min,theta_max)
+    R,THETA = s.get_coords_2d()
+    X,THETA = s.get_x2d()
+
+    # initial guess
+    u0 = initial_guess(R,THETA)
+    u0[-1] = 0
+
+    # define numerical residual
+    if cmp_type is 'standard':
+        def f(u):
+            d = s.differentiate_wrt_R
+            out = residual(R,THETA,u,d)
+            out[0] = bdry_X_inner(THETA,u,d)[0]
+            out[:,0] = bdry_theta_min(R,u,d)[:0]
+            out[:,-1] = bdry_theta_max(R,u,d)[:-1]
+            out[-1] = u[-1]
+            return out
+    elif cmp_type is 'BH':
+        def f(u):
+            d = s.differentiate_wrt_R
+            out = residual(R,THETA,u,d)
+            out[:,0] = bdry_theta_min(R,u,d)[:0]
+            out[:,-1] = bdry_theta_max(R,u,d)[:-1]
+            out[0] = s.differentiate(u,1,0)[0]
+            out[-1] = u[-1]
+            return out
+    else:
+        raise ValueError("Invalid compactification type. "
+                         +"Valid options are: 'standard','bh'")
+
+    # solve!
+    soln = optimize.newton_krylov(f,u0,f_tol=f_tol)
+
+    return soln
