@@ -2,7 +2,7 @@
 
 """elliptic.py
 Author: Jonah Miller (jonah.maxwell.miller@gmail.com)
-Time-stamp: <2017-05-13 16:05:26 (jmiller)>
+Time-stamp: <2017-05-13 16:43:53 (jmiller)>
 
 This is a module for pyballd. It contains the routines required for
 solving elliptic systems.
@@ -119,6 +119,13 @@ def pde_solve_once(residual,
 
     f_tol          -- The tolerance on the residual for the
                       nonlinear vector root finder.
+
+    Returns
+    -------
+    R     -- The radial coordinate
+    X     -- The compactified radial coordinate
+    THETA -- The longitudinal coordinate
+    soln  -- The solution
     """
     if cmp_type is 'standard':
         Stencil = domain.PyballdStencil
@@ -145,16 +152,16 @@ def pde_solve_once(residual,
             d = s.differentiate_wrt_R
             out = residual(R,THETA,u,d)
             out[0] = bdry_X_inner(THETA,u,d)[0]
-            out[:,0] = bdry_theta_min(R,u,d)[:0]
-            out[:,-1] = bdry_theta_max(R,u,d)[:-1]
+            out[:,0] = bdry_theta_min(R,u,d)[:,0]
+            out[:,-1] = bdry_theta_max(R,u,d)[:,-1]
             out[-1] = u[-1]
             return out
     elif cmp_type is 'BH':
         def f(u):
             d = s.differentiate_wrt_R
             out = residual(R,THETA,u,d)
-            out[:,0] = bdry_theta_min(R,u,d)[:0]
-            out[:,-1] = bdry_theta_max(R,u,d)[:-1]
+            out[:,0] = bdry_theta_min(R,u,d)[:,0]
+            out[:,-1] = bdry_theta_max(R,u,d)[:,-1]
             out[0] = s.differentiate(u,1,0)[0]
             out[-1] = u[-1]
             return out
@@ -165,4 +172,4 @@ def pde_solve_once(residual,
     # solve!
     soln = optimize.newton_krylov(f,u0,f_tol=f_tol)
 
-    return soln
+    return R,X,THETA,soln
