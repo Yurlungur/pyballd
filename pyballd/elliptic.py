@@ -2,12 +2,13 @@
 
 """elliptic.py
 Author: Jonah Miller (jonah.maxwell.miller@gmail.com)
-Time-stamp: <2017-05-13 16:43:53 (jmiller)>
+Time-stamp: <2017-05-13 16:51:04 (jmiller)>
 
 This is a module for pyballd. It contains the routines required for
 solving elliptic systems.
 """
 
+from __future__ import print_function
 import numpy as np
 import scipy as sp
 from scipy import optimize
@@ -18,6 +19,7 @@ DEFAULT_ORDER_THETA = 24
 DEFAULT_R_H = 1.
 DEFAULT_THETA_MIN = 0.
 DEFAULT_THETA_MAX = np.pi
+VERBOSE=True
 
 def DEFAULT_BDRY_X_INNER(theta,u,d):
     out = u
@@ -127,6 +129,9 @@ def pde_solve_once(residual,
     THETA -- The longitudinal coordinate
     soln  -- The solution
     """
+    if VERBOSE:
+        print("Welcome to the Pyballd Elliptic Solver")
+        
     if cmp_type is 'standard':
         Stencil = domain.PyballdStencil
     elif cmp_type is 'BH':
@@ -136,6 +141,8 @@ def pde_solve_once(residual,
                          +"Valid options are: 'standard','bh'")
     
     # define domain
+    if VERBOSE:
+        print("Generating pseudospectral derivatives")
     s = Stencil(order_X,r_h,
                 order_theta,
                 theta_min,theta_max)
@@ -143,10 +150,14 @@ def pde_solve_once(residual,
     X,THETA = s.get_x2d()
 
     # initial guess
+    if VERBOSE:
+        print("Constructing initial guess")
     u0 = initial_guess(R,THETA)
     u0[-1] = 0
 
     # define numerical residual
+    if VERBOSE:
+        print("Defining Residuals")
     if cmp_type is 'standard':
         def f(u):
             d = s.differentiate_wrt_R
@@ -170,6 +181,10 @@ def pde_solve_once(residual,
                          +"Valid options are: 'standard','bh'")
 
     # solve!
-    soln = optimize.newton_krylov(f,u0,f_tol=f_tol)
+    if VERBOSE:
+        print("Beginning solve")
+    soln = optimize.newton_krylov(f,u0,f_tol=f_tol,verbose=VERBOSE)
 
+    if VERBOSE:
+        print("Solve complete.")
     return R,X,THETA,soln
