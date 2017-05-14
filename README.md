@@ -224,7 +224,7 @@ associated with it.
 
 After waiting a few minutes, you should get an image like this one:
 
-![solution to the Poisson equation](poisson_solution.png)
+![solution to the Poisson equation](figs/poisson_solution.png)
 
 # References
 
