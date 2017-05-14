@@ -6,6 +6,14 @@ Author: Jonah Miller (jonah.maxwell.miller@gmail.com)
 A Pseudospectral Elliptic Solver for Axisymmetric Problems Implemented
 in Python
 
+# Installation
+
+Simply clone the repository and use
+
+```bash
+python setup.py install
+```
+
 # Pseudospectral Derivatives
 
 Pyballd uses Legendre pseudospectral derivatives to attain very high
