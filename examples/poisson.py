@@ -2,7 +2,7 @@
 
 """poisson.py
 Author: Jonah Miller (jonah.maxwell.miller@gmail.com)
-Time-stamp: <2017-05-13 16:55:34 (jmiller)>
+Time-stamp: <2017-05-14 01:10:10 (jmiller)>
 
 This is an example script that solves the Poisson equation using
 pyballd.
@@ -15,9 +15,10 @@ import matplotlib as mpl
 from matplotlib import pyplot as plt
 
 r_h = 1.0
-k = 3
-order_X = 120
-order_theta = 48
+k = 2
+a = 4
+order_X = 70
+order_theta = 50
 exclude_last=20
 
 def residual(r,theta,u,d):
@@ -28,11 +29,11 @@ def residual(r,theta,u,d):
     return out
 
 def bdry_X_inner(theta,u,d):
-    out = u - np.cos(2*np.pi*k*theta)
+    out = u - a*np.cos(k*theta)
     return out
 
 def initial_guess(r,theta):
-    out = np.cos(2*k*np.pi*theta)/r
+    out = a*np.cos(k*theta)/r
     return out
 
 R,X,THETA,SOLN = pyballd.pde_solve_once(residual,
@@ -40,7 +41,8 @@ R,X,THETA,SOLN = pyballd.pde_solve_once(residual,
                                         order_X = order_X,
                                         order_theta = order_theta,
                                         bdry_X_inner = bdry_X_inner,
-                                        initial_guess = initial_guess)
+                                        initial_guess = initial_guess,
+                                        f_tol=6e-6)
 
 mx,mz = R*np.sin(THETA), R*np.cos(THETA)
 plt.pcolor(mx[:-exclude_last,:],
@@ -51,7 +53,14 @@ plt.ylabel('z',fontsize=16)
 cb =plt.colorbar()
 cb.set_label(label='solution to Poisson Eqn',
              fontsize=16)
+plt.xlim(0,2.5)
+plt.ylim(-2.5,2.5)
 for postfix in ['.png','.pdf']:
     plt.savefig('figs/poisson_solution'+postfix,
                 bbox_inches='tight')
-    plt.clf()
+plt.clf()
+
+np.savetxt('data/poisson_solution.txt',SOLN)
+np.savetxt('data/poisson_X.txt',X)
+np.savetxt('data/poisson_R.txt',R)
+np.savetxt('data/poisson_THETA.txt',THETA)

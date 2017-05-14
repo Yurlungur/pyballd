@@ -181,9 +181,10 @@ It allso expects a boundary condition for the inner boundary. We
 choose a Dirichlet boundary condition and define it as:
 
 ```python
+k = 2
+a = 4
 def bdry_X_inner(theta,u,d):
-	k = 3
-    out = u - np.cos(2*np.pi*k*theta)
+    out = u - a*np.cos(k*theta)
     return out
 ```
 
@@ -198,7 +199,7 @@ solution. We define ours as
 
 ```python
 def initial_guess(r,theta):
-    out = np.cos(2*k*np.pi*theta)/r
+    out = a*np.cos(k*theta)/r
     return out
 ```
 
@@ -220,6 +221,10 @@ R,X,THETA,SOLN = pyballd.pde_solve_once(residual,
 `pyballd.pde_solve_once` has a large number of options and
 defaults. For a full description of of these, see the help string
 associated with it.
+
+After waiting a few minutes, you should get an image like this one:
+
+![solution to the Poisson equation](poisson_solution.png)
 
 # References
 
