@@ -3,7 +3,7 @@
 """
 orthopoly.py
 Author: Jonah Miller (jonah.maxwell.miller@gmail.com)
-Time-stamp: <2017-05-13 14:20:23 (jmiller)>
+Time-stamp: <2017-05-15 19:13:42 (jmiller)>
 
 A module for orthogonal polynomials for pseudospectral methods in Python
 """
@@ -23,8 +23,9 @@ from numpy import linalg
 # ======================================================================
 # Global constants
 # ======================================================================
-LOCAL_XMIN = -1 # Maximum and min values of reference cell
-LOCAL_XMAX = 1
+LOCAL_XMIN = -1. # Maximum and min values of reference cell
+LOCAL_XMAX = 1.
+LOCAL_WIDTH = float(LOCAL_XMAX-LOCAL_XMIN)
 poly = polynomial.legendre.Legendre  # A class for orthogonal polynomials
 pval2d = polynomial.legendre.legval2d
 # ======================================================================
@@ -107,15 +108,37 @@ def get_nodal_differentiation_matrix(order,
 
 # Operators Outside Reference Cell
 # ======================================================================
+def get_width(xmin=LOCAL_XMAIN,xmax=LOCAL_XMAX):
+    "Gets the width of the interval [xmin,xmax]"
+    return float(xmax-xmin)
+
+def coord_reference_to_global(x_local,
+                              xmin=LOCAL_XMIN,
+                              xmax=LOCAL_XMAX):
+    "maps a point in [LOCAL_XMIN,LOCAL_XMAX] to a point in [xmin,xmax]"
+    global_width=get_width(xmin,xmax)
+    m = global_width/local_width
+    b = (LOCAL_XMAX*xmin - LOCAL_XMIN*xmax)/LOCAL_WIDTH
+    x_global = m*x_local + b
+    return x_global
+
+def coord_global_to_reference(x_global,
+                              xmin=LOCAL_XMIN,
+                              xmax=LOCAL_XMAX):
+    "maps a point in [xmin,xmax] to a point in [LOCAL_XMIN,LOCAL_XMAX]"
+    global_width=get_width(xmin,xmax)
+    m = LOCAL_WIDTH/global_width
+    b = (LOCAL_XMIN*xmax - LOCAL_XMAX*xmin)/global_width
+    x_local = m*x_global + b
+    return x_local
+
 def get_colocation_points(order,xmin=LOCAL_XMIN,xmax=LOCAL_XMAX,quad_points=None):
     """
     Generates order+1 colocation points on the domain [xmin,xmax]
     """
     if quad_points is None:
         quad_points = get_quadrature_points(order)
-    local_width=float(LOCAL_XMAX-LOCAL_XMIN)
-    physical_width = float(xmax-xmin)
-    x = xmin + (LOCAL_XMAX+quad_points)*physical_width/local_width
+    x = coord_reference_to_global(x,xmin,xmax)
     return x
 
 def get_global_differentiation_matrix(order,
@@ -227,6 +250,18 @@ class PseudoSpectralStencil1D:
         numpy polynomial object that can be evaluated.
         """
         return get_continuous_object(grid_func,self.xmin,self.xmax,self.c2s)
+
+    def _coord_ref_to_global(self,r):
+        """Maps a coordinate in the reference cell to a coordinate in
+        global coordinates.
+        """
+        return coord_reference_to_global(r,self.xmin,self.xmax)
+
+    def _coord_global_to_ref(self,x):
+        """Maps a coordinate in global coordinates to
+        one in the reference cell.
+        """
+        return coord_global_to_reference(x,self.xmin,self.xmax)
 # ======================================================================
 
 
@@ -314,14 +349,17 @@ class PseudoSpectralStencil2D(object):
         norm2 = np.sqrt(integral)
         return norm2
 
-    def to_continuum(grid_func):
+    def to_continuum(self,grid_func):
         coeffs_x = np.empty_like(grid_func)
         for j in range(coeffs_x.shape[1]):
             coeffs_x[:,j] = np.dot(self.stencil_x.c2s,grid_func[:,j])
         coeffs_xy = np.empty_like(grid_func)
         for i in range(coeffs_xy.shape[0]):
             coeffs_xy[i,:] = np.dot(self.stencil_y.c2s,coeffs_x[i,:])
-        f = lambda x,y: pval2d(x,y,coeffs_xy)
+        def f(x,y):
+            mx,my = [s._coord_global_to_ref(c) \
+                     for c,s in zip([x,y],self.stencils)]
+            return pval2d(mx,my,coeffs_xy)
         return f
 
     def __call__(self,grid_func,x,y):
