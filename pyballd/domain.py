@@ -2,7 +2,7 @@
 
 """domain.py
 Author: Jonah Miller (jonah.maxwell.miller@gmail.com)
-Time-stamp: <2017-05-13 10:59:09 (jmiller)>
+Time-stamp: <2017-05-15 18:27:07 (jmiller)>
 
 A component of the pyballd library. This module defines the domain and
 coordinate system used for pyballd:
@@ -140,7 +140,7 @@ class PyballdStencil(PseudoSpectralStencil2D):
 
     def get_X_from_r(self,r):
         x = self.get_x_from_r(r)
-        X = self.get_X_from_x(self,x)
+        X = self.get_X_from_x(x)
         return X
 
     def get_x_from_X(self,X):
@@ -167,6 +167,10 @@ class PyballdStencil(PseudoSpectralStencil2D):
     def get_coords_2d(self):
         return self.R,self.THETA
 
+    def get_interpolator_of_r(self,grid_func):
+        fX = self.to_continuum(grid_func)
+        fr = lambda r,theta: fX(self.get_X_from_r(r),theta)
+        return fr
     
 class PyballdStencilBH(PyballdStencil):
     """A derivative stencil explicitly designed for axisymmetric
