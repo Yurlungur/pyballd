@@ -3,7 +3,7 @@
 """
 orthopoly.py
 Author: Jonah Miller (jonah.maxwell.miller@gmail.com)
-Time-stamp: <2017-05-15 19:13:42 (jmiller)>
+Time-stamp: <2017-05-15 19:15:17 (jmiller)>
 
 A module for orthogonal polynomials for pseudospectral methods in Python
 """
@@ -108,7 +108,7 @@ def get_nodal_differentiation_matrix(order,
 
 # Operators Outside Reference Cell
 # ======================================================================
-def get_width(xmin=LOCAL_XMAIN,xmax=LOCAL_XMAX):
+def get_width(xmin=LOCAL_XMIN,xmax=LOCAL_XMAX):
     "Gets the width of the interval [xmin,xmax]"
     return float(xmax-xmin)
 
@@ -117,7 +117,7 @@ def coord_reference_to_global(x_local,
                               xmax=LOCAL_XMAX):
     "maps a point in [LOCAL_XMIN,LOCAL_XMAX] to a point in [xmin,xmax]"
     global_width=get_width(xmin,xmax)
-    m = global_width/local_width
+    m = global_width/LOCAL_WIDTH
     b = (LOCAL_XMAX*xmin - LOCAL_XMIN*xmax)/LOCAL_WIDTH
     x_global = m*x_local + b
     return x_global
@@ -138,7 +138,7 @@ def get_colocation_points(order,xmin=LOCAL_XMIN,xmax=LOCAL_XMAX,quad_points=None
     """
     if quad_points is None:
         quad_points = get_quadrature_points(order)
-    x = coord_reference_to_global(x,xmin,xmax)
+    x = coord_reference_to_global(quad_points,xmin,xmax)
     return x
 
 def get_global_differentiation_matrix(order,
