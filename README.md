@@ -226,8 +226,8 @@ need many nodes! For example:
 SOLN,s = pyballd.pde_solve_once(residual,
                                 r_h = 1.0,
                                 order_X = 20,
-                                order_theta = 4,
-								theta_max = np.pi/2,
+                                order_theta = 4
+                                theta_max = np.pi/2,
                                 bdry_X_inner = bdry_X_inner,
                                 initial_guess = initial_guess)
 ```
