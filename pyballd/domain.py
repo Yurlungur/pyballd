@@ -2,7 +2,7 @@
 
 """domain.py
 Author: Jonah Miller (jonah.maxwell.miller@gmail.com)
-Time-stamp: <2017-05-15 18:27:07 (jmiller)>
+Time-stamp: <2017-05-15 20:23:57 (jmiller)>
 
 A component of the pyballd library. This module defines the domain and
 coordinate system used for pyballd:
@@ -111,53 +111,64 @@ class PyballdStencil(PseudoSpectralStencil2D):
         return integral_physical
 
     def get_drdX(self,X):
+        "Derivative of radial coordinate with respect to compactified"
         dXdr = self.get_dXdr(X)
         with np.errstate(invalid='ignore'):
             drdX = 1./dXdr
         return drdX
 
     def get_dXdr(self,X):
+        "Derivative of compactified coordinate with respect to radial"
         dXdr = (X-1)**2
         return dXdr
 
     def get_d2rdX2(self,X):
+        "Second derivative of radial coordinate with respect to compactified"
         d2Xdr2 = self.get_d2Xdr2(X)
         with np.errstate(invalid='ignore'):
             d2rdX2 = 1./d2Xdr2
         return d2rdX2
 
     def get_d2Xdr2(self,X):
+        "Second derivative of compactified coordinate with respect to radial"
         d2Xdr2 = 2*(X-1)**3
         return d2Xdr2
 
     def get_x_from_r(self,r):
+        "x = 0 when r = rh"
         x = r - self.r_h
         return x
 
     def get_X_from_x(self,x):
+        "X is x compactified"
         X = x/(1.0+x)
         return X
 
     def get_X_from_r(self,r):
+        "Get compactified coordinate from radial"
         x = self.get_x_from_r(r)
         X = self.get_X_from_x(x)
         return X
 
     def get_x_from_X(self,X):
+        "X is x compactified"
         with np.errstate(invalid='ignore'):
             x = (1.0 - X)**(-1) - 1
         return x
 
     def get_r_from_x(self,x):
+        "x = 0 when r = rh"
         r = x + self.r_h
         return r
 
     def get_r_from_X(self,X):
+        "Get radial coordinates from compact ones"
         x = self.get_x_from_X(X)
         r = self.get_r_from_x(x)
         return r
 
     def get_coords_1d(self,axis=0):
+        "Get coordinates in direction axis"
         if axis == 0:
             return self.r
         if axis == 1:
@@ -165,9 +176,14 @@ class PyballdStencil(PseudoSpectralStencil2D):
         raise ValueError("Invalid axis")
 
     def get_coords_2d(self):
+        "Get R and Theta in 2D"
         return self.R,self.THETA
 
     def get_interpolator_of_r(self,grid_func):
+        """Returns function that interpolates
+        the input discrete function as a function
+        of the non-compactified R and Theta coordinates.
+        """
         fX = self.to_continuum(grid_func)
         fr = lambda r,theta: fX(self.get_X_from_r(r),theta)
         return fr
@@ -182,21 +198,25 @@ class PyballdStencilBH(PyballdStencil):
     """
 
     def get_dXdr(self,X):
+        "Derivative of compactified coordinate with respect to radial"
         num = ((X-1)**2)*np.sqrt(X**2+(self.r_h**2)*((X-1)**2))
         denom = X
         dXdr = num/denom
         return dXdr
 
     def get_d2Xdr2(self,X):
+        "Second derivative of radial coordinate with respect to compactified"
         num = ((X-1)**3)*(2*(X**3)+(self.r_h**2)*((X-1)**2)*(1+2*X))
         denom = X**3
         d2Xdr2 = num/denom
         return d2Xdr2
 
     def get_x_from_r(self,r):
+        "x = 0 when r = rh"
         x = np.sqrt(r**2 - self.r_h**2)
         return x
 
     def get_r_from_x(self,x):
+        "x = 0 when r = rh"
         r = np.sqrt(x**2 + self.r_h**2)
         return r

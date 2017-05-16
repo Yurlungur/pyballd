@@ -91,12 +91,16 @@ with derivative
 
 ![derivative of test function on equator](figs/deriv_domain_test_function.png)
 
-In this setup, our convergence becomes substantially slower. However,
+In this setup, our convergence becomes a little slower. However,
 we still retain spectral convergence as this plot of the maximum of
 the errors in the derivative of the above function on the
 compactified domain shows:
 
 ![errors on compactified domain](figs/domain_l1_errors.png)
+
+Note that convergence depends on the function being differentiated in
+the compactified coordinate. Nonanalyaticity *in the compactified
+coordinate* anywhere in the domain will spoil convergence.
 
 # Solving an Elliptic PDE
 
@@ -218,21 +222,40 @@ Finally, we ask `pyballd` to generate a solution by calling
 `pyballd.pde_solve_once`. For example:
 
 ```python
-R,X,THETA,SOLN = pyballd.pde_solve_once(residual,
-                                        r_h = 1.0,
-                                        order_X = 60,
-                                        order_theta = 24,
-                                        bdry_X_inner = bdry_X_inner,
-                                        initial_guess = initial_guess)
+SOLN,s = pyballd.pde_solve_once(residual,
+                                r_h = 1.0,
+                                order_X = 60,
+                                order_theta = 24,
+                                bdry_X_inner = bdry_X_inner,
+                                initial_guess = initial_guess)
 ```
 
-`pyballd.pde_solve_once` has a large number of options and
-defaults. For a full description of of these, see the help string
-associated with it.
+`pyballd.pde_solve_once` returns the solution on the product grid of
+colocation points and a *discretization object* `s`, which can
+differentiate a function defined on the colocation points, or
+interpolate it to a uniform grid. For example:
 
-After waiting a few minutes, you should get an image like this one:
+```python
+r = np.linspace(r_h,4,200)
+theta = np.linspace(0,np.pi/2,200)
+R,THETA = np.meshgrid(r,theta,indexing='ij')
+interpolator = s.get_interpolator_of_r(SOLN)
+soln_interp = interpolator(R,THETA)
+x,z = R*np.sin(THETA), R*np.cos(THETA)
+plt.pcolor(mx,mz,soln_interp)
+plt.xlim(0,2)
+plt.ylim(0,2)
+```
+
+will produce a beautiful plot of the solution interpolated to a finer
+grid, such as this one:
 
 ![solution to the Poisson equation](figs/poisson_solution.png)
+
+Both `pde_solve_once` and discretization objects, called
+`PyballdStencil`s in the code, have a large number of options and
+defaults. For a full description of of these, see the help strings
+associated with them.
 
 # References
 

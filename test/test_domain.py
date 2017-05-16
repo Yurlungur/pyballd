@@ -2,7 +2,7 @@
 
 """test_domain.py
 Author: Jonah Miller (jonah.maxwell.miller@gmail.com)
-Time-stamp: <2017-05-15 17:49:59 (jmiller)>
+Time-stamp: <2017-05-15 19:29:18 (jmiller)>
 
 Tests the domain module of pyballd.
 """
@@ -132,7 +132,7 @@ def test_errors():
         if 2 <= i <= 4:
             plt.plot(X[:,-1],delta[:,-1],lw=3,
                      label="order = {}".format(o))
-        l1_errors[i] = np.max(delta[1:])
+        l1_errors[i] = np.max(np.abs(delta[1:]))
     plt.xlabel(r'$(r-r_h)/(1+r-r_h)$',fontsize=16)
     plt.ylabel('error',fontsize=16)
     plt.legend()

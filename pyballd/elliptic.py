@@ -2,7 +2,7 @@
 
 """elliptic.py
 Author: Jonah Miller (jonah.maxwell.miller@gmail.com)
-Time-stamp: <2017-05-13 16:51:04 (jmiller)>
+Time-stamp: <2017-05-15 18:17:30 (jmiller)>
 
 This is a module for pyballd. It contains the routines required for
 solving elliptic systems.
@@ -124,10 +124,9 @@ def pde_solve_once(residual,
 
     Returns
     -------
-    R     -- The radial coordinate
-    X     -- The compactified radial coordinate
-    THETA -- The longitudinal coordinate
     soln  -- The solution
+    d     -- The discretization object associated with the solution.
+             It can be used to differentiate, interpolate, and more.
     """
     if VERBOSE:
         print("Welcome to the Pyballd Elliptic Solver")
@@ -187,4 +186,4 @@ def pde_solve_once(residual,
 
     if VERBOSE:
         print("Solve complete.")
-    return R,X,THETA,soln
+    return soln,s
