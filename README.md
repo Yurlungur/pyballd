@@ -220,7 +220,7 @@ solution. We define ours as
 ```python
 def initial_guess(r,theta):
 	u = u[0]
-	out = a*np.cos(k*theta)/r
+	out = a*np.cos(k*theta)/(r**3)
 	out = out.reshape(tuple([1]) + out.shape)
 	return out
 ```

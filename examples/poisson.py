@@ -2,7 +2,7 @@
 
 """poisson.py
 Author: Jonah Miller (jonah.maxwell.miller@gmail.com)
-Time-stamp: <2017-05-15 22:21:13 (jmiller)>
+Time-stamp: <2017-05-15 22:35:30 (jmiller)>
 
 This is an example script that solves the Poisson equation using
 pyballd.
@@ -39,7 +39,7 @@ def bdry_X_inner(theta,u,d):
     return out
 
 def initial_guess(r,theta):
-    out = a*np.cos(k*theta)/(r)
+    out = a*np.cos(k*theta)/(r**3)
     out = out.reshape(tuple([1]) + out.shape)
     return out
 
