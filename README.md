@@ -179,10 +179,10 @@ satisfied when the residual vanishes. We define ours as
 ```python
 def residual(r,theta,u,d):
 	out = u[0]
-    out = (2*r*d(u,1,0)
-           + r*r*d(u,2,0)
-           + np.cos(theta)*d(u,0,1)
-           + np.sin(theta)*d(u,0,2))
+	out = (2*r*d(u,1,0)
+		+ r*r*d(u,2,0)
+		+ np.cos(theta)*d(u,0,1)
+		+ np.sin(theta)*d(u,0,2))
 	out = out.reshape(tuple([1]) + out.shape)
     return out
 ```
@@ -203,9 +203,9 @@ k = 4
 a = 2
 def bdry_X_inner(theta,u,d):
 	u = u[0]
-    out = u - a*np.cos(k*theta)
+	out = u - a*np.cos(k*theta)
 	out = out.reshape(tuple([1]) + out.shape)
-    return out
+	return out
 ```
 
 This works a lot like `residual` defined above. However, it will only
@@ -220,9 +220,9 @@ solution. We define ours as
 ```python
 def initial_guess(r,theta):
 	u = u[0]
-    out = a*np.cos(k*theta)/r
+	out = a*np.cos(k*theta)/r
 	out = out.reshape(tuple([1]) + out.shape)
-    return out
+	return out
 ```
 
 which is definitely not the correct solution. However, it should
@@ -234,7 +234,7 @@ need many nodes! For example:
 
 ```python
 SOLN,s = pyballd.pde_solve_once(residual,
-                                r_h = 1.0,
+	                            r_h = 1.0,
                                 order_X = 20,
                                 order_theta = 4
                                 theta_max = np.pi/2,
