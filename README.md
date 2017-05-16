@@ -193,8 +193,8 @@ It allso expects a boundary condition for the inner boundary. We
 choose a Dirichlet boundary condition and define it as:
 
 ```python
-k = 2
-a = 4
+k = 4
+a = 2
 def bdry_X_inner(theta,u,d):
     out = u - a*np.cos(k*theta)
     return out
