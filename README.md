@@ -178,10 +178,12 @@ satisfied when the residual vanishes. We define ours as
 
 ```python
 def residual(r,theta,u,d):
+	out = u[0]
     out = (2*r*d(u,1,0)
            + r*r*d(u,2,0)
            + np.cos(theta)*d(u,0,1)
            + np.sin(theta)*d(u,0,2))
+	out = out.reshape(tuple([1]) + out.shape)
     return out
 ```
 
@@ -189,14 +191,20 @@ Here `d` is a derivative operator. So `d(u,2,0)` corresponds to two
 derivatives with respect to *r* of *u*, while `d(u,0,2)` corresponds
 to two derivatives with respect to &#952;.
 
-It allso expects a boundary condition for the inner boundary. We
+The weird array reshaping is an artifact of the fact that `pyballd` is
+designed for vector and tensor equations, not just scalar
+equations. Therefore, scalars must be treated as vectors of length 1.
+
+`pyballd` allso expects a boundary condition for the inner boundary. We
 choose a Dirichlet boundary condition and define it as:
 
 ```python
 k = 4
 a = 2
 def bdry_X_inner(theta,u,d):
+	u = u[0]
     out = u - a*np.cos(k*theta)
+	out = out.reshape(tuple([1]) + out.shape)
     return out
 ```
 
@@ -211,7 +219,9 @@ solution. We define ours as
 
 ```python
 def initial_guess(r,theta):
+	u = u[0]
     out = a*np.cos(k*theta)/r
+	out = out.reshape(tuple([1]) + out.shape)
     return out
 ```
 
@@ -238,6 +248,7 @@ differentiate a function defined on the colocation points, or
 interpolate it to a uniform grid. For example:
 
 ```python
+SOLN = SOLN[0]
 r = np.linspace(r_h,4,200)
 theta = np.linspace(0,np.pi/2,200)
 R,THETA = np.meshgrid(r,theta,indexing='ij')

@@ -2,7 +2,7 @@
 
 """elliptic.py
 Author: Jonah Miller (jonah.maxwell.miller@gmail.com)
-Time-stamp: <2017-05-15 21:12:50 (jmiller)>
+Time-stamp: <2017-05-15 22:20:52 (jmiller)>
 
 This is a module for pyballd. It contains the routines required for
 solving elliptic systems.
@@ -26,15 +26,27 @@ def DEFAULT_BDRY_X_INNER(theta,u,d):
     return out
 
 def DEFAULT_BDRY_THETA_MIN(r,u,d):
-    out = d(u,0,1)
+    ushape = u.shape
+    num_vars = np.prod(ushape[:-2])
+    uflat = u.reshape(tuple([num_vars])+ushape[-2:])
+    out = np.empty_like(uflat)
+    for i in range(out.shape[0]):
+        out[i] = d(uflat[i],0,1)
+    out.reshape(ushape)
     return out
 
 def DEFAULT_BDRY_THETA_MAX(r,u,d):
-    out = d(u,0,1)
+    ushape = u.shape
+    num_vars = np.prod(ushape[:-2])
+    uflat = u.reshape(tuple([num_vars])+ushape[-2:])
+    out = np.empty_like(uflat)
+    for i in range(out.shape[0]):
+        out[i] = d(uflat[i],0,1)
+    out.reshape(ushape)
     return out
 
 def DEFAULT_INITIAL_GUESS(r,theta):
-    out = 0.*theta
+    out = (0.*theta).reshape(tuple([1])+theta.shape)
     return out
 
 def pde_solve_once(residual,
@@ -197,20 +209,20 @@ def pde_solve_once(residual,
             u = u.reshape(u0.shape)
             d = s.differentiate_wrt_R
             out = residual(R,THETA,u,d)
-            out[0] = bdry_X_inner(THETA,u,d)[0]
-            out[:,0] = bdry_theta_min(R,u,d)[:,0]
-            out[:,-1] = bdry_theta_max(R,u,d)[:,-1]
-            out[-1] = u[-1]
+            out[...,0,:] = bdry_X_inner(THETA,u,d)[...,0,:]
+            out[...,:,0] = bdry_theta_min(R,u,d)[...,:,0]
+            out[...,:,-1] = bdry_theta_max(R,u,d)[...,:,-1]
+            out[...,-1,:] = 0.
             return out.flatten()
     elif cmp_type is 'BH':
         def f(u):
             u = u.reshape(u0.shape)
             d = s.differentiate_wrt_R
             out = residual(R,THETA,u,d)
-            out[:,0] = bdry_theta_min(R,u,d)[:,0]
-            out[:,-1] = bdry_theta_max(R,u,d)[:,-1]
-            out[0] = s.differentiate(u,1,0)[0]
-            out[-1] = u[-1]
+            out[...,0,:] = s.differentiate(u,1,0)[...,0,:]
+            out[...,:,0] = bdry_theta_min(R,u,d)[...,:,0]
+            out[...,:,-1] = bdry_theta_max(R,u,d)[...,:,-1]
+            out[...,-1,:] = 0.
             return out.flatten()
     else:
         raise ValueError("Invalid compactification type. "
@@ -235,7 +247,7 @@ def pde_solve_once(residual,
                     print("Solved in {} function evaluations".format(soln.nfev))
                 if 'nit' in items:
                     print("Solved in {} iterations".format(soln.nit))
-            soln = soln.x.reshape(s.shape())
+            soln = soln.x.reshape(u0.shape)
         else:
             print("Solve failed!")
             print(soln.status)
@@ -244,4 +256,5 @@ def pde_solve_once(residual,
 
     if VERBOSE:
         print("Solve complete.")
+
     return soln,s

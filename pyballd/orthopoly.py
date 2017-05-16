@@ -3,7 +3,7 @@
 """
 orthopoly.py
 Author: Jonah Miller (jonah.maxwell.miller@gmail.com)
-Time-stamp: <2017-05-15 20:33:17 (jmiller)>
+Time-stamp: <2017-05-15 22:06:13 (jmiller)>
 
 A module for orthogonal polynomials for pseudospectral methods in Python
 """

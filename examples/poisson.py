@@ -2,7 +2,7 @@
 
 """poisson.py
 Author: Jonah Miller (jonah.maxwell.miller@gmail.com)
-Time-stamp: <2017-05-15 21:35:02 (jmiller)>
+Time-stamp: <2017-05-15 22:21:13 (jmiller)>
 
 This is an example script that solves the Poisson equation using
 pyballd.
@@ -24,18 +24,23 @@ theta_max = np.pi/2
 rmax = 1.5
 
 def residual(r,theta,u,d):
+    u = u[0]
     out = (2*r*d(u,1,0)
            + r*r*d(u,2,0)
            + np.cos(theta)*d(u,0,1)
            + np.sin(theta)*d(u,0,2))
+    out = out.reshape(tuple([1]) + out.shape)
     return out
 
 def bdry_X_inner(theta,u,d):
+    u = u[0]
     out = u - a*np.cos(k*theta)
+    out = out.reshape(tuple([1]) + out.shape)
     return out
 
 def initial_guess(r,theta):
     out = a*np.cos(k*theta)/(r)
+    out = out.reshape(tuple([1]) + out.shape)
     return out
 
 if __name__ == "__main__":
@@ -51,6 +56,7 @@ if __name__ == "__main__":
                                     f_tol=1e-10)
     
 
+    SOLN = SOLN[0]
     r = np.linspace(r_h,2*rmax,200)
     theta = np.linspace(0,theta_max,200)
     R,THETA = np.meshgrid(r,theta,indexing='ij')
