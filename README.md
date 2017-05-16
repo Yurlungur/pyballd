@@ -234,7 +234,7 @@ need many nodes! For example:
 
 ```python
 SOLN,s = pyballd.pde_solve_once(residual,
-	                            r_h = 1.0,
+                                r_h = 1.0,
                                 order_X = 20,
                                 order_theta = 4
                                 theta_max = np.pi/2,
