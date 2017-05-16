@@ -2,7 +2,7 @@
 
 """elliptic.py
 Author: Jonah Miller (jonah.maxwell.miller@gmail.com)
-Time-stamp: <2017-05-15 18:17:30 (jmiller)>
+Time-stamp: <2017-05-15 21:12:50 (jmiller)>
 
 This is a module for pyballd. It contains the routines required for
 solving elliptic systems.
@@ -14,8 +14,8 @@ import scipy as sp
 from scipy import optimize
 import domain
 
-DEFAULT_ORDER_X = 120
-DEFAULT_ORDER_THETA = 24
+DEFAULT_ORDER_X = 24
+DEFAULT_ORDER_THETA = 8
 DEFAULT_R_H = 1.
 DEFAULT_THETA_MIN = 0.
 DEFAULT_THETA_MAX = np.pi
@@ -48,7 +48,8 @@ def pde_solve_once(residual,
                    bdry_theta_min = DEFAULT_BDRY_THETA_MIN,
                    bdry_theta_max = DEFAULT_BDRY_THETA_MAX,
                    initial_guess  = DEFAULT_INITIAL_GUESS,
-                   f_tol          = 1e-8
+                   f_tol          = 1e-8,
+                   method         = 'hybr'
                    ):
     """Solves the elliptic pde system defined by residual.
     See the README for more details.
@@ -122,12 +123,47 @@ def pde_solve_once(residual,
     f_tol          -- The tolerance on the residual for the
                       nonlinear vector root finder.
 
+    method         -- The solver method to use. (Exposes scipy functionality.)
+                      The default is MINPACK's hybrid method 'hybr'.
+                      Options are
+                      -- 'hybr'
+                      -- 'lm'
+                      -- 'broyden1'
+                      -- 'broyden2'
+                      -- 'anderson'
+                      -- 'linearmixing'
+                      -- 'diagbroyden'
+                      -- 'excitingmixing'
+                      -- 'krylov'
+                      -- 'df-sane'
+                      -- 'newton-krylov'
+                      For small problems, 'hybr' is probably ideal.
+                      For large problems, probably 'newton-krylov'
+                      See:
+                      https://docs.scipy.org/doc/scipy-0.19.0/reference/generated/scipy.optimize.root.html
+                      and
+                      https://docs.scipy.org/doc/scipy-0.14.0/reference/generated/scipy.optimize.newton_krylov.html
+
     Returns
     -------
     soln  -- The solution
     d     -- The discretization object associated with the solution.
              It can be used to differentiate, interpolate, and more.
     """
+    ok_methods = ['hybr',
+                  'lm',
+                  'broyden1',
+                  'broyden2',
+                  'anderson',
+                  'linearmixing',
+                  'diagbroyden',
+                  'excitingmixing',
+                  'krylov',
+                  'df-sane',
+                  'newton-krylov']
+    if method not in ok_methods:
+        raise ValueError("Method must be one of {}".format(ok_methods))
+
     if VERBOSE:
         print("Welcome to the Pyballd Elliptic Solver")
         
@@ -152,29 +188,30 @@ def pde_solve_once(residual,
     if VERBOSE:
         print("Constructing initial guess")
     u0 = initial_guess(R,THETA)
-    u0[-1] = 0
 
     # define numerical residual
     if VERBOSE:
         print("Defining Residuals")
     if cmp_type is 'standard':
         def f(u):
+            u = u.reshape(u0.shape)
             d = s.differentiate_wrt_R
             out = residual(R,THETA,u,d)
             out[0] = bdry_X_inner(THETA,u,d)[0]
             out[:,0] = bdry_theta_min(R,u,d)[:,0]
             out[:,-1] = bdry_theta_max(R,u,d)[:,-1]
             out[-1] = u[-1]
-            return out
+            return out.flatten()
     elif cmp_type is 'BH':
         def f(u):
+            u = u.reshape(u0.shape)
             d = s.differentiate_wrt_R
             out = residual(R,THETA,u,d)
             out[:,0] = bdry_theta_min(R,u,d)[:,0]
             out[:,-1] = bdry_theta_max(R,u,d)[:,-1]
             out[0] = s.differentiate(u,1,0)[0]
             out[-1] = u[-1]
-            return out
+            return out.flatten()
     else:
         raise ValueError("Invalid compactification type. "
                          +"Valid options are: 'standard','bh'")
@@ -182,7 +219,28 @@ def pde_solve_once(residual,
     # solve!
     if VERBOSE:
         print("Beginning solve")
-    soln = optimize.newton_krylov(f,u0,f_tol=f_tol,verbose=VERBOSE)
+        print("using method: {}".format(method))
+    if method == 'newton-krylov':
+        soln = optimize.newton_krylov(f,u0,f_tol=f_tol,verbose=VERBOSE)
+        soln.reshape(u0.shape)
+    else:
+        soln = optimize.root(f,u0.flatten(),tol=f_tol,method=method)
+        print(soln.message)
+        if soln.success:
+            items = dir(soln)
+            if VERBOSE:
+                print("solve succesfull!")
+                print("Solve status is: {}".format(soln.status))
+                if 'nfev' in items:
+                    print("Solved in {} function evaluations".format(soln.nfev))
+                if 'nit' in items:
+                    print("Solved in {} iterations".format(soln.nit))
+            soln = soln.x.reshape(s.shape())
+        else:
+            print("Solve failed!")
+            print(soln.status)
+            print(soln.message)
+            raise ValueError(soln.message)
 
     if VERBOSE:
         print("Solve complete.")

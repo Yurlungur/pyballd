@@ -3,7 +3,7 @@
 """
 orthopoly.py
 Author: Jonah Miller (jonah.maxwell.miller@gmail.com)
-Time-stamp: <2017-05-15 19:15:17 (jmiller)>
+Time-stamp: <2017-05-15 20:33:17 (jmiller)>
 
 A module for orthogonal polynomials for pseudospectral methods in Python
 """
@@ -361,6 +361,10 @@ class PseudoSpectralStencil2D(object):
                      for c,s in zip([x,y],self.stencils)]
             return pval2d(mx,my,coeffs_xy)
         return f
+
+    def shape(self):
+        "Returns shape of discrete product grid"
+        return self.X.shape
 
     def __call__(self,grid_func,x,y):
         "Evaluates grid_function at points x,y, may interpolate."
