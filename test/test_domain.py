@@ -2,7 +2,7 @@
 
 """test_domain.py
 Author: Jonah Miller (jonah.maxwell.miller@gmail.com)
-Time-stamp: <2017-05-17 21:21:22 (jmiller)>
+Time-stamp: <2017-05-18 09:23:09 (jmiller)>
 
 Tests the domain module of pyballd.
 """
@@ -25,8 +25,9 @@ ORDERS_MAX = 30
 
 def f(r,theta):
     #out = np.sin(theta)*r*np.exp(-r/2.)
-    #out = np.sin(theta)*np.exp(-r)
     out = np.sin(theta)*np.cos(K*2*np.pi*(1./r))/r
+    #out = np.sin(theta)*np.exp(-r)
+    #out = np.sin(theta)*np.log(1.+1./r)
     out[-1] = 0
     return out
 def dfdr(r,theta):
@@ -34,6 +35,7 @@ def dfdr(r,theta):
     out = (2*K*np.pi*np.sin(2*np.pi*K/r)
            -r*np.cos(2*np.pi*K/r))*np.sin(theta)/(r**3)
     #out = -np.exp(-r)*np.sin(theta)
+    #out = -np.sin(theta)/(r+r*r)
     out[-1] = 0
     return out
 
@@ -42,6 +44,7 @@ def dfdrdtheta(r,theta):
     out = (2*K*np.pi*np.sin(2*np.pi*K/r)
            -r*np.cos(2*np.pi*K/r))*np.cos(theta)/(r**3)
     #out = -np.exp(-r)*np.cos(theta)
+    #out = -np.cos(theta)/(r+r*r)
     out[-1] = 0
     return out
 
