@@ -2,7 +2,7 @@
 
 """test_domain.py
 Author: Jonah Miller (jonah.maxwell.miller@gmail.com)
-Time-stamp: <2017-05-15 19:29:18 (jmiller)>
+Time-stamp: <2017-05-17 21:21:22 (jmiller)>
 
 Tests the domain module of pyballd.
 """
@@ -25,6 +25,7 @@ ORDERS_MAX = 30
 
 def f(r,theta):
     #out = np.sin(theta)*r*np.exp(-r/2.)
+    #out = np.sin(theta)*np.exp(-r)
     out = np.sin(theta)*np.cos(K*2*np.pi*(1./r))/r
     out[-1] = 0
     return out
@@ -32,13 +33,15 @@ def dfdr(r,theta):
     #out = np.sin(theta)*(np.exp(-r/2.) - (1./2.)*r*np.exp(-r/2.))
     out = (2*K*np.pi*np.sin(2*np.pi*K/r)
            -r*np.cos(2*np.pi*K/r))*np.sin(theta)/(r**3)
+    #out = -np.exp(-r)*np.sin(theta)
     out[-1] = 0
     return out
 
 def dfdrdtheta(r,theta):
-    #out = np.sin(theta)*(np.exp(-r/2.) - (1./2.)*r*np.exp(-r/2.))
+    #out = np.cos(theta)*(np.exp(-r/2.) - (1./2.)*r*np.exp(-r/2.))
     out = (2*K*np.pi*np.sin(2*np.pi*K/r)
            -r*np.cos(2*np.pi*K/r))*np.cos(theta)/(r**3)
+    #out = -np.exp(-r)*np.cos(theta)
     out[-1] = 0
     return out
 
@@ -115,6 +118,7 @@ def test_errors():
     orders = [4*(i+1) for i in range(8)]
     #orders = [2+(i) for i in range(ORDERS_MAX)]
     l1_errors = [None for o in orders]
+    l2_errors = [None for o in orders]
     #print("iteration, order")
     for i,o in enumerate(orders):
         #print(i,o)
@@ -133,6 +137,7 @@ def test_errors():
             plt.plot(X[:,-1],delta[:,-1],lw=3,
                      label="order = {}".format(o))
         l1_errors[i] = np.max(np.abs(delta[1:]))
+        l2_errors[i] = s.l2_norm_to_infty(delta)
     plt.xlabel(r'$(r-r_h)/(1+r-r_h)$',fontsize=16)
     plt.ylabel('error',fontsize=16)
     plt.legend()
@@ -143,9 +148,33 @@ def test_errors():
 
     plt.semilogy(orders,l1_errors,'bo--',lw=3,ms=12)
     plt.xlabel('order',fontsize=16)
-    plt.ylabel('max(error)',fontsize=16)
+    plt.ylabel(r'|error|$_\infty$',fontsize=16)
     for postfix in ['.png','.pdf']:
         plt.savefig('figs/domain_l1_errors'+postfix,
+                    bbox_inches='tight')
+    plt.clf()
+
+    plt.loglog(orders,l1_errors,'bo--',lw=3,ms=12)
+    plt.xlabel('order',fontsize=16)
+    plt.ylabel(r'|error|$_\infty$',fontsize=16)
+    for postfix in ['.png','.pdf']:
+        plt.savefig('figs/domain_l1_errors_loglog'+postfix,
+                    bbox_inches='tight')
+    plt.clf()
+
+    plt.semilogy(orders,l2_errors,'bo--',lw=3,ms=12)
+    plt.xlabel('order',fontsize=16)
+    plt.ylabel(r'|error|$_2$',fontsize=16)
+    for postfix in ['.png','.pdf']:
+        plt.savefig('figs/domain_l2_errors'+postfix,
+                    bbox_inches='tight')
+    plt.clf()
+
+    plt.loglog(orders,l2_errors,'bo--',lw=3,ms=12)
+    plt.xlabel('order',fontsize=16)
+    plt.ylabel(r'|error|$_2$',fontsize=16)
+    for postfix in ['.png','.pdf']:
+        plt.savefig('figs/domain_l2_errors_loglog'+postfix,
                     bbox_inches='tight')
     plt.clf()
 

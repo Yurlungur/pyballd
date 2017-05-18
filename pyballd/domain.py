@@ -2,7 +2,7 @@
 
 """domain.py
 Author: Jonah Miller (jonah.maxwell.miller@gmail.com)
-Time-stamp: <2017-05-15 20:23:57 (jmiller)>
+Time-stamp: <2017-05-17 21:09:40 (jmiller)>
 
 A component of the pyballd library. This module defines the domain and
 coordinate system used for pyballd:
@@ -98,17 +98,21 @@ class PyballdStencil(PseudoSpectralStencil2D):
         # else (if order_X == 0)
         return self.differentiate(grid_func,0,order_theta)
 
-    def inner_product_on_sphere(self,gf1,gf2):
-        "Inner product using spherical coordinates"
+    def inner_product_to_infty(self,gf1,gf2):
+        "Inner product on non-compact domain"
         factors = [s.get_scale_factor() for s in self.stencils]
         factor = np.prod(factors)
-        # exclude last point because it diverges
-        integrand = (gf1*self.weights2D*gf2
-                     *self.dRdX
-                     *(self.R**2)*np.sin(self.THETA))[:-1,0]
-        integral_unit_cell = np.sum(integrand)
-        integral_physical = integral_unit_cell*factor*(2*np.pi)
-        return integral_physical
+        integrand = (factor*gf1*self.weights2D*gf2*self.dRdX)
+        integrand[-1] = 0
+        integral = np.sum(integrand)
+        return integral
+
+    def l2_norm_to_infty(self,gf):
+        "L2 norm on non-compact domain"
+        f = 1./self.R
+        numerator = self.inner_product_to_infty(gf,gf)
+        denominator = self.inner_product_to_infty(f,f)
+        return numerator/denominator
 
     def get_drdX(self,X):
         "Derivative of radial coordinate with respect to compactified"
