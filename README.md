@@ -47,7 +47,7 @@ for most boundary situations or (following the work of [1])
 when *r<sub>h</sub>* is a black hole event horizon. Then, following
 Boyd [2], we then define
 
-![definition of X](eqns/def_X.gif)
+![definition of X](eqns/def_X_new.gif)
 
 for some characteristic length scale *L* so that *X* is defined on the
 domain *[-1,1]*. We perform our differentiation on *X*, which has no
