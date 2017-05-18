@@ -2,7 +2,7 @@
 
 """poisson.py
 Author: Jonah Miller (jonah.maxwell.miller@gmail.com)
-Time-stamp: <2017-05-17 21:18:36 (jmiller)>
+Time-stamp: <2017-05-17 21:42:44 (jmiller)>
 
 This is an example script that solves the Poisson equation using
 pyballd.
@@ -17,8 +17,8 @@ from matplotlib import pyplot as plt
 r_h = 1.0
 k = 4
 a = 2
-order_X = 24
-order_theta = 6
+order_X = 36
+order_theta = 12
 exclude_last=1
 theta_max = np.pi/2
 rmax = 1.5
@@ -53,7 +53,7 @@ if __name__ == "__main__":
                                     theta_min = 0,
                                     theta_max = theta_max,
                                     method = 'hybr',
-                                    f_tol=1e-10)
+                                    f_tol=1e-13)
     
 
     SOLN = SOLN[0]
