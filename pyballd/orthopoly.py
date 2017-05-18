@@ -3,7 +3,7 @@
 """
 orthopoly.py
 Author: Jonah Miller (jonah.maxwell.miller@gmail.com)
-Time-stamp: <2017-05-17 21:45:18 (jmiller)>
+Time-stamp: <2017-05-18 09:59:55 (jmiller)>
 
 A module for orthogonal polynomials for pseudospectral methods in Python
 """
@@ -16,6 +16,9 @@ A module for orthogonal polynomials for pseudospectral methods in Python
 import numpy as np
 from numpy import polynomial
 from numpy import linalg
+from scipy import integrate
+from scipy import optimize
+from copy import copy
 # ======================================================================
 
 
@@ -26,15 +29,38 @@ from numpy import linalg
 LOCAL_XMIN = -1. # Maximum and min values of reference cell
 LOCAL_XMAX = 1.
 LOCAL_WIDTH = float(LOCAL_XMAX-LOCAL_XMIN)
-poly = polynomial.legendre.Legendre  # A class for orthogonal polynomials
-pval2d = polynomial.legendre.legval2d
+poly = polynomial.chebyshev.Chebyshev  # A class for orthogonal polynomials
+pval2d = polynomial.chebyshev.chebval2d
+weight_func = polynomial.chebyshev.chebweight
+integrator = integrate.quad
 # ======================================================================
 
+
+# ======================================================================
+# Utilities
+# ======================================================================
+def get_norm2_difference(foo,bar,xmin,xmax):
+    """
+    Returns sqrt(integral((foo-bar)**2)) on the interval [xmin,xmax]
+    """
+    out = integrator(lambda x: (foo(x)-bar(x))**2,xmin,xmax)[0]
+    out /= float(xmax-xmin)
+    out = np.sqrt(out)
+    return out
+# ======================================================================
 
 
 # ======================================================================
 # Nodal and Modal Details
 # ======================================================================
+def continuous_inner_product(foo,bar):
+    """"
+    Takes the continuous inner product in the POLY norm between
+    the functions foo and bar.
+    """
+    return integrator(lambda x: foo(x)*bar(x)*weight_func(x),
+                      LOCAL_XMIN,LOCAL_XMAX)[0]
+
 def get_quadrature_points(order):
     """
     Returns the quadrature points for Gauss-Lobatto quadrature
@@ -44,22 +70,6 @@ def get_quadrature_points(order):
     """
     return np.sort(np.concatenate((np.array([-1,1]),
                                    poly.basis(order).deriv().roots())))
-
-def get_integration_weights(order,nodes=None):
-    """
-    Returns the integration weights for Gauss-Lobatto quadrature
-    as a function of the order of the polynomial we want to
-    represent.
-    See: https://en.wikipedia.org/wiki/Gaussian_quadrature
-    """
-    if nodes is None:
-        nodes=get_quadrature_points(order)
-    interior_weights = 2/((order+1)*order*poly.basis(order)(nodes[1:-1])**2)
-    boundary_weights = np.array([1-0.5*np.sum(interior_weights)])
-    weights = np.concatenate((boundary_weights,
-                              interior_weights,
-                              boundary_weights))
-    return weights
 
 def get_vandermonde_matrices(order,nodes=None):
     """
@@ -76,6 +86,33 @@ def get_vandermonde_matrices(order,nodes=None):
             s2c[i,j] = poly.basis(j)(nodes[i])
     c2s = linalg.inv(s2c)
     return s2c,c2s
+
+def get_integration_weights(order,nodes=None):
+    """
+    Returns the integration weights for Gauss-Lobatto quadrature
+    as a function of the order of the polynomial we want to
+    represent.
+    See: https://en.wikipedia.org/wiki/Gaussian_quadrature
+    See: arXive:gr-qc/0609020v1
+    """
+    if np.all(nodes == False):
+        nodes=get_quadrature_points(order)
+    if poly == polynomial.chebyshev.Chebyshev:
+        weights = np.empty((order+1))
+        weights[1:-1] = np.pi/order
+        weights[0] = np.pi/(2*order)
+        weights[-1] = weights[0]
+        return weights
+    elif poly == polynomial.legendre.Legendre:
+        interior_weights = 2/((order+1)*order*poly.basis(order)(nodes[1:-1])**2)
+        boundary_weights = np.array([1-0.5*np.sum(interior_weights)])
+        weights = np.concatenate((boundary_weights,
+                                  interior_weights,
+                                  boundary_weights))
+        return weights
+    else:
+        raise ValueError("Not a known polynomial type.")
+        return False
 
 def get_modal_differentiation_matrix(order):
     """
@@ -157,7 +194,6 @@ def get_global_differentiation_matrix(order,
     LD = get_nodal_differentiation_matrix(order,s2c,c2s,Dmodal)
     PD = LD/scale_factor
     return PD
-
 # ======================================================================
 
 
@@ -197,7 +233,7 @@ def get_continuous_object(grid_func,
 # ======================================================================
 # A convenience class that generates everything and can be called
 # ======================================================================
-class PseudoSpectralStencil1D:
+class PseudoSpectralDiscretization1D:
     """Given an order, and a domain [xmin,xmax]
     defines internally all structures and methods the user needs
     to calculate spectral derivatives in 1D
@@ -268,7 +304,7 @@ class PseudoSpectralStencil1D:
 # ======================================================================
 # Higher dimensions
 # ======================================================================
-class PseudoSpectralStencil2D(object):
+class PseudoSpectralDiscretization2D(object):
     """Given an order in x and y and a domain
     [xmin,xmax]x[ymin,ymax],
     defines a psuedospectral stencil in two dimensions
@@ -278,8 +314,8 @@ class PseudoSpectralStencil2D(object):
                  ordery,ymin,ymax):
         "Constructor. Needs order and domain in x and y"
         self.orderx,self.ordery = orderx,ordery
-        self.stencils = [PseudoSpectralStencil1D(orderx,xmin,xmax),
-                         PseudoSpectralStencil1D(ordery,ymin,ymax)]
+        self.stencils = [PseudoSpectralDiscretization1D(orderx,xmin,xmax),
+                         PseudoSpectralDiscretization1D(ordery,ymin,ymax)]
         self.stencil_x,self.stencil_y = self.stencils
         self.quads = [s.quads for s in self.stencils]
         self.colocs = [s.colocation_points for s in self.stencils]

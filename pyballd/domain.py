@@ -2,7 +2,7 @@
 
 """domain.py
 Author: Jonah Miller (jonah.maxwell.miller@gmail.com)
-Time-stamp: <2017-05-17 21:09:40 (jmiller)>
+Time-stamp: <2017-05-18 10:25:03 (jmiller)>
 
 A component of the pyballd library. This module defines the domain and
 coordinate system used for pyballd:
@@ -24,12 +24,12 @@ which we calculate numerically.
 
 from __future__ import print_function
 import numpy as np
-from orthopoly import PseudoSpectralStencil2D
+from orthopoly import PseudoSpectralDiscretization2D
 EPSILON_SML=1e-10
 EPSILON_BIG=1e10
 
     
-class PyballdStencil(PseudoSpectralStencil2D):
+class PyballdDiscretization(PseudoSpectralDiscretization2D):
     """A derivative stencil explicitly designed for axisymmetric
     domains. Automatically performs appropriate compactification.
 
@@ -37,12 +37,15 @@ class PyballdStencil(PseudoSpectralStencil2D):
     x = r - r_h,
     thus shifting the domain of x to [0,infinity)
     """
-    X_min = 0
-    X_max = 1
+    X_min = -1.
+    X_max = 1.
 
     def __init__(self,
                  order_X,r_h,
-                 order_theta,theta_min,theta_max):
+                 order_theta,
+                 theta_min = 0,
+                 theta_max = np.pi,
+                 L=1):
         """Constructor.
 
         Parameters
@@ -52,13 +55,16 @@ class PyballdStencil(PseudoSpectralStencil2D):
         order_theta -- polynomial order in theta direction
         theta_min   -- minimum longitudinal value. Should be no less than 0.
         theta_max   -- maximum longitudinal value. Should be no greater than pi.
+        L           -- Characteristic length scale of problem.
+                       Needed for compactification
         """
         self.order_X = order_X
         self.order_theta = order_theta
         self.r_h = r_h
         self.theta_min = theta_min
         self.theta_max = theta_max
-        super(PyballdStencil,self).__init__(order_X,
+        self.L = L
+        super(PyballdDiscretization,self).__init__(order_X,
                                             self.X_min,self.X_max,
                                             order_theta,
                                             theta_min,theta_max)
@@ -123,7 +129,8 @@ class PyballdStencil(PseudoSpectralStencil2D):
 
     def get_dXdr(self,X):
         "Derivative of compactified coordinate with respect to radial"
-        dXdr = (X-1)**2
+        L = self.L
+        dXdr = ((X-1)**2)/(2*L)
         return dXdr
 
     def get_d2rdX2(self,X):
@@ -135,7 +142,8 @@ class PyballdStencil(PseudoSpectralStencil2D):
 
     def get_d2Xdr2(self,X):
         "Second derivative of compactified coordinate with respect to radial"
-        d2Xdr2 = 2*(X-1)**3
+        L = self.L
+        d2Xdr2 = ((X-1)**3)/(2*L*L)
         return d2Xdr2
 
     def get_x_from_r(self,r):
@@ -145,7 +153,9 @@ class PyballdStencil(PseudoSpectralStencil2D):
 
     def get_X_from_x(self,x):
         "X is x compactified"
-        X = x/(1.0+x)
+        L = self.L
+        with np.errstate(invalid='ignore'):
+            X = (x-L)/(x+L)
         return X
 
     def get_X_from_r(self,r):
@@ -156,8 +166,9 @@ class PyballdStencil(PseudoSpectralStencil2D):
 
     def get_x_from_X(self,X):
         "X is x compactified"
+        L = self.L
         with np.errstate(invalid='ignore'):
-            x = (1.0 - X)**(-1) - 1
+            x = L*(1+X)/(1-X)
         return x
 
     def get_r_from_x(self,x):
@@ -192,7 +203,7 @@ class PyballdStencil(PseudoSpectralStencil2D):
         fr = lambda r,theta: fX(self.get_X_from_r(r),theta)
         return fr
     
-class PyballdStencilBH(PyballdStencil):
+class PyballdDiscretizationBH(PyballdDiscretization):
     """A derivative stencil explicitly designed for axisymmetric
     black holes. Automatically performs appropriate compactification.
 
@@ -203,24 +214,30 @@ class PyballdStencilBH(PyballdStencil):
 
     def get_dXdr(self,X):
         "Derivative of compactified coordinate with respect to radial"
-        num = ((X-1)**2)*np.sqrt(X**2+(self.r_h**2)*((X-1)**2))
-        denom = X
+        L = self.L
+        r_h = self.r_h
+        num = ((X-1)**2)*np.sqrt((r_h*(X-1))**2 + (L*(X+1))**2)
+        denom = 2*L*L*(1+X)
         dXdr = num/denom
         return dXdr
 
     def get_d2Xdr2(self,X):
         "Second derivative of radial coordinate with respect to compactified"
-        num = ((X-1)**3)*(2*(X**3)+(self.r_h**2)*((X-1)**2)*(1+2*X))
-        denom = X**3
+        L = self.L
+        r_h = self.r_h
+        num = ((X-1)**3)*(L*L*((1+X)**3)+(r_h**2)*(2-3*X+X**3))
+        denom = 2*(L**4)*(1+X)**3
         d2Xdr2 = num/denom
         return d2Xdr2
 
     def get_x_from_r(self,r):
         "x = 0 when r = rh"
-        x = np.sqrt(r**2 - self.r_h**2)
+        r_h = self.r_h
+        x = np.sqrt(r**2 - r_h**2)
         return x
 
     def get_r_from_x(self,x):
         "x = 0 when r = rh"
-        r = np.sqrt(x**2 + self.r_h**2)
+        r_h = self.r_h
+        r = np.sqrt(x**2 + r_h**2)
         return r

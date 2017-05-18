@@ -2,7 +2,7 @@
 
 """elliptic.py
 Author: Jonah Miller (jonah.maxwell.miller@gmail.com)
-Time-stamp: <2017-05-15 22:20:52 (jmiller)>
+Time-stamp: <2017-05-18 11:29:20 (jmiller)>
 
 This is a module for pyballd. It contains the routines required for
 solving elliptic systems.
@@ -60,6 +60,7 @@ def pde_solve_once(residual,
                    bdry_theta_min = DEFAULT_BDRY_THETA_MIN,
                    bdry_theta_max = DEFAULT_BDRY_THETA_MAX,
                    initial_guess  = DEFAULT_INITIAL_GUESS,
+                   L_over_r_h     = 1,
                    f_tol          = 1e-8,
                    method         = 'hybr'
                    ):
@@ -132,6 +133,8 @@ def pde_solve_once(residual,
                       However, the initial guess should be compatible with
                       this square integrability condition.
 
+    L_over_r_h     -- The characteristic length scale of the problem in terms of r_h
+
     f_tol          -- The tolerance on the residual for the
                       nonlinear vector root finder.
 
@@ -180,9 +183,9 @@ def pde_solve_once(residual,
         print("Welcome to the Pyballd Elliptic Solver")
         
     if cmp_type is 'standard':
-        Stencil = domain.PyballdStencil
+        Discretization = domain.PyballdDiscretization
     elif cmp_type is 'BH':
-        Stencil = domain.PyballdStencilBH
+        Discretization = domain.PyballdDiscretizationBH
     else:
         raise ValueError("Invalid compactification type. "
                          +"Valid options are: 'standard','bh'")
@@ -190,9 +193,11 @@ def pde_solve_once(residual,
     # define domain
     if VERBOSE:
         print("Generating pseudospectral derivatives")
-    s = Stencil(order_X,r_h,
-                order_theta,
-                theta_min,theta_max)
+    L = L_over_r_h*r_h
+    s = Discretization(order_X,r_h,
+                       order_theta,
+                       theta_min,theta_max,
+                       L = L)
     R,THETA = s.get_coords_2d()
     X,THETA = s.get_x2d()
 
