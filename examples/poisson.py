@@ -2,7 +2,7 @@
 
 """poisson.py
 Author: Jonah Miller (jonah.maxwell.miller@gmail.com)
-Time-stamp: <2017-05-15 22:35:30 (jmiller)>
+Time-stamp: <2017-05-17 21:18:36 (jmiller)>
 
 This is an example script that solves the Poisson equation using
 pyballd.
@@ -17,16 +17,16 @@ from matplotlib import pyplot as plt
 r_h = 1.0
 k = 4
 a = 2
-order_X = 20
-order_theta = 4
+order_X = 24
+order_theta = 6
 exclude_last=1
 theta_max = np.pi/2
 rmax = 1.5
 
 def residual(r,theta,u,d):
     u = u[0]
-    out = (2*r*d(u,1,0)
-           + r*r*d(u,2,0)
+    out = (2*np.sin(theta)*r*d(u,1,0)
+           + r*r*np.sin(theta)*d(u,2,0)
            + np.cos(theta)*d(u,0,1)
            + np.sin(theta)*d(u,0,2))
     out = out.reshape(tuple([1]) + out.shape)
@@ -39,7 +39,7 @@ def bdry_X_inner(theta,u,d):
     return out
 
 def initial_guess(r,theta):
-    out = a*np.cos(k*theta)/(r**3)
+    out = 1./r
     out = out.reshape(tuple([1]) + out.shape)
     return out
 

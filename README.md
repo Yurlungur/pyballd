@@ -178,12 +178,12 @@ satisfied when the residual vanishes. We define ours as
 
 ```python
 def residual(r,theta,u,d):
-	out = u[0]
-	out = (2*r*d(u,1,0)
-		+ r*r*d(u,2,0)
-		+ np.cos(theta)*d(u,0,1)
-		+ np.sin(theta)*d(u,0,2))
-	out = out.reshape(tuple([1]) + out.shape)
+    u = u[0]
+    out = (2*np.sin(theta)*r*d(u,1,0)
+           + r*r*np.sin(theta)*d(u,2,0)
+           + np.cos(theta)*d(u,0,1)
+           + np.sin(theta)*d(u,0,2))
+    out = out.reshape(tuple([1]) + out.shape)
     return out
 ```
 
@@ -219,14 +219,14 @@ solution. We define ours as
 
 ```python
 def initial_guess(r,theta):
-	u = u[0]
-	out = a*np.cos(k*theta)/(r**3)
+	out = 1./r
 	out = out.reshape(tuple([1]) + out.shape)
 	return out
 ```
 
-which is definitely not the correct solution. However, it should
-be sufficiently close to the true solution to allow for convergence.
+which is a simple square integrable function. It's not a solution that
+matches the boundary conditions. However, it should be sufficiently
+close to the true solution to allow for convergence.
 
 Finally, we ask `pyballd` to generate a solution by calling
 `pyballd.pde_solve_once`. Because it's a spectral method, you don't
@@ -235,8 +235,8 @@ need many nodes! For example:
 ```python
 SOLN,s = pyballd.pde_solve_once(residual,
                                 r_h = 1.0,
-                                order_X = 20,
-                                order_theta = 4
+                                order_X = 24,
+                                order_theta = 6
                                 theta_max = np.pi/2,
                                 bdry_X_inner = bdry_X_inner,
                                 initial_guess = initial_guess)
