@@ -16,7 +16,7 @@ python setup.py install
 
 # Pseudospectral Derivatives
 
-Pyballd uses Legendre pseudospectral derivatives to attain very high
+Pyballd uses Chebyshev pseudospectral derivatives to attain very high
 accuracy with fairly low resolution. For example, if we numerically
 take second-order derivatives of this function:
 
@@ -36,22 +36,23 @@ The appropriate domain for an axisymmetric problem is
 ![axisymmetric domain base](eqns/domain_base.gif)
 
 where *r<sub>h</sub>* is some minimum radius. Infinite domains are
-difficult to handle. Therefore, following the work of Herdeiro and
-Radu [1], we define either
+difficult to handle. Therefore, we define
 
 ![definition of x for most boundaries](eqns/def_x_dirichlet.gif)
 
-for most boundary situations or 
+for most boundary situations or (following the work of [1])
 
 ![definition of x](eqns/def_x_bh.gif)
 
-when *r<sub>h</sub>* is a black hole event horizon. We then define
+when *r<sub>h</sub>* is a black hole event horizon. Then, following
+Boyd [2], we then define
 
 ![definition of X](eqns/def_X.gif)
 
-so that *X* is defined on the domain *[0,1]*. We perform our
-differentiation on *X*, which has no effect on the original PDE system
-except the introduction of Jacobian terms of the form
+for some characteristic length scale *L* so that *X* is defined on the
+domain *[-1,1]*. We perform our differentiation on *X*, which has no
+effect on the original PDE system except the introduction of Jacobian
+terms of the form
 
 ![jacobian terms](eqns/X_Jacobian.gif)
 
@@ -69,38 +70,63 @@ the Jacobian for the coordinate transformation looks like
 
 ![Jacobian for the coordinate transformation](figs/domain_dXdr.png)
 
-The primary advantage is that *1/r<sup>n</sup>* falloffs are linear in
-this coordinate system and so a low-order spectral method will
-represent the solution exactly.
+As we shall see, this spectral method can efficiently represent both
+exponential and algebraic decay with spectral accuracy.
 
 ## Convergence on the Compactified Domain
 
-For more complex functions, such as this one:
+The convergence of the scheme depends senitively on the characteristic
+length scale *L*. Generically it will be *spectral* but
+*subgeometric*, meaning it's not quite as fast as in the non-compact
+case.
 
-![test function on compact domain](figs/domain_test_function_2d.png)
+### Functions that Decay Rationally
+
+Consider this function
+
+![test function on compact domain](figs/domain_test_function_alg_2d.png)
 
 which has this derivative
 
-![derivative of test function on compact domain](figs/deriv_domain_test_function_2d.png)
+![derivative of test function on compact domain](figs/deriv_domain_test_function_alg_2d.png)
 
 On the compact domain (on the equator), this function becomes
 
-![test function on equator](figs/domain_test_function.png)
+![test function on equator](figs/domain_test_function_alg.png)
 
 with derivative
 
-![derivative of test function on equator](figs/deriv_domain_test_function.png)
+![derivative of test function on equator](figs/deriv_domain_test_function_alg.png)
 
-In this setup, our convergence becomes a little slower. However,
-we still retain spectral convergence as this plot of the maximum of
-the errors in the derivative of the above function on the
-compactified domain shows:
+We achieve best convergence for this function with *L=1*:
 
-![errors on compactified domain](figs/domain_l1_errors.png)
+![errors on compactified domain](figs/domain_l1_errors_alg.png)
 
-Note that convergence depends on the function being differentiated in
-the compactified coordinate. Nonanalyaticity *in the compactified
-coordinate* anywhere in the domain will spoil convergence.
+### Functions that decay exponentially
+
+On the other hand, consider this function:
+
+![test function on compact domain](figs/domain_test_function_exp_2d.png)
+
+which has this derivative
+
+![derivative of test function on compact domain](figs/deriv_domain_test_function_exp_2d.png)
+
+On the compact domain (on the equator), this function becomes
+
+![test function on equator](figs/domain_test_function_exp.png)
+
+with derivative
+
+![derivative of test function on equator](figs/deriv_domain_test_function_exp.png)
+
+We achieve best convergence for this function with
+
+![Lexp](eqns/Lexp.gif)
+
+as shown here:
+
+![errors on compactified domain](figs/domain_l1_errors_exp.png)
 
 # Solving an Elliptic PDE
 
@@ -272,5 +298,8 @@ associated with them.
 
 # References
 
-[1] Herderio, Radu, Runarrson. Kerr black holes with Proca
-hair. *Classical and Quantum Gravity* **33-15** (2016).
+[1] Herderio, Radu, Runarrson. "Kerr black holes with Proca
+hair." *Classical and Quantum Gravity* **33-15** (2016).
+
+[2] Boyd, John P. "Orthogonal rational functions on a semi-infinite
+interval." *Journal of Computational Physics* **70.1** (1987): 63-88.
