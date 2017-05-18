@@ -3,7 +3,7 @@
 """
 orthopoly.py
 Author: Jonah Miller (jonah.maxwell.miller@gmail.com)
-Time-stamp: <2017-05-17 21:36:27 (jmiller)>
+Time-stamp: <2017-05-17 21:45:18 (jmiller)>
 
 A module for orthogonal polynomials for pseudospectral methods in Python
 """
@@ -319,19 +319,9 @@ class PseudoSpectralStencil2D(object):
         if orderx > 0:
             df = np.dot(self.stencil_x.PD,grid_func)
             return self.differentiate(df,orderx-1,ordery)
-            # df = np.empty_like(grid_func)
-            # for j in range(df.shape[1]):
-            #     df[:,j] = self.stencil_x.differentiate(grid_func[:,j],orderx)
-            # return self.differentiate(df,0,ordery)
 
         if ordery > 0:
-            # df = np.empty_like(grid_func)
-            # for i in range(df.shape[0]):
-            #     df[i,:] = self.stencil_y.differentiate(grid_func[i,:],ordery)
-            # return self.differentiate(df,orderx,0)
             df = np.dot(grid_func,self.stencil_y.PD.transpose())
-            #df = np.tensordot(self.stencil_y.PD,grid_func,
-            #                  axes=([1],[1]))
             return self.differentiate(df,orderx,ordery-1)
 
         #if orderx == 0 and ordery == 0:
@@ -356,12 +346,8 @@ class PseudoSpectralStencil2D(object):
         return norm2
 
     def to_continuum(self,grid_func):
-        coeffs_x = np.empty_like(grid_func)
-        for j in range(coeffs_x.shape[1]):
-            coeffs_x[:,j] = np.dot(self.stencil_x.c2s,grid_func[:,j])
-        coeffs_xy = np.empty_like(grid_func)
-        for i in range(coeffs_xy.shape[0]):
-            coeffs_xy[i,:] = np.dot(self.stencil_y.c2s,coeffs_x[i,:])
+        coeffs_x = np.dot(self.stencil_x.c2s,grid_func)
+        coeffs_xy = np.dot(coeffs_x,self.stencil_y.c2s.transpose())
         def f(x,y):
             mx,my = [s._coord_global_to_ref(c) \
                      for c,s in zip([x,y],self.stencils)]
