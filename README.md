@@ -146,7 +146,7 @@ conditions, which select for the particular solution. At infinity
 (*X=1*), we automatically demand that the solution must vanish. (In
 other words, we demand that all solutions are square-integrable.)
 
-Dirichlet, Von-Neumann, or Robin boundary conditions can be imposed on
+Dirichlet, Neumann, or Robin boundary conditions can be imposed on
 the inner radius (*r_h*), the position of minimum &#952; (often the
 axis of symmetry), and the position of maximum &#952; (often the axis
 of symmetry or the equator).
@@ -158,7 +158,7 @@ In the case of black-hole like compactifications, where
 we automatically impose Von-Neumann boundary conditions at the inner
 boundary such that
 
-![von neumann regularity condition](eqns/von-neumann-regularity-condition.gif)
+![neumann regularity condition](eqns/von-neumann-regularity-condition.gif)
 
 which is a regularity condition we need to impose on solutions in
 these coordinates.
