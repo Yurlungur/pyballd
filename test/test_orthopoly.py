@@ -3,14 +3,14 @@
 """
 test_orthopoly.py
 Author: Jonah Miller (jonah.maxwell.miller@gmail.com)
-Time-stamp: <2017-05-15 19:35:25 (jmiller)>
+Time-stamp: <2017-05-18 09:58:29 (jmiller)>
 
 Tests the orthopoly module.
 """
 
 from __future__ import print_function
 import pyballd
-from pyballd.orthopoly import PseudoSpectralStencil2D
+from pyballd.orthopoly import PseudoSpectralDiscretization2D
 import matplotlib as mpl
 from matplotlib import pyplot as plt
 import numpy as np
@@ -32,7 +32,7 @@ g = lambda x,y: dfdx2(x,y) + dfdy2(x,y) + dfdxdy(x,y)
 
 def test_derivatives_at_order(ordery):
     orderx = X_OVER_Y*ordery
-    s = PseudoSpectralStencil2D(orderx,XMIN,XMAX,
+    s = PseudoSpectralDiscretization2D(orderx,XMIN,XMAX,
                                 ordery,YMIN,YMAX)
     X,Y = s.get_x2d()
     f_ana = f(X,Y)
@@ -45,7 +45,7 @@ def test_derivatives_at_order(ordery):
     return norm2dg
 
 def plot_test_function(orderx,ordery):
-    s = PseudoSpectralStencil2D(orderx,XMIN,XMAX,
+    s = PseudoSpectralDiscretization2D(orderx,XMIN,XMAX,
                                 ordery,YMIN,YMAX)
     X,Y = s.get_x2d()
     f_ana = f(X,Y)
@@ -74,7 +74,7 @@ def test_derivatives():
 
 def test_interp_at_order(ordery):
     orderx = X_OVER_Y*ordery
-    s = PseudoSpectralStencil2D(orderx,XMIN,XMAX,
+    s = PseudoSpectralDiscretization2D(orderx,XMIN,XMAX,
                                 ordery,YMIN,YMAX)
     Xc,Yc = s.get_x2d()
     x = np.linspace(XMIN,XMAX,100)
@@ -88,7 +88,7 @@ def test_interp_at_order(ordery):
     return np.max(np.abs(delta))
 
 def plot_interpolation(orderx,ordery):
-    s = PseudoSpectralStencil2D(orderx,XMIN,XMAX,
+    s = PseudoSpectralDiscretization2D(orderx,XMIN,XMAX,
                                 ordery,YMIN,YMAX)
     Xc,Yc = s.get_x2d()
     x = np.linspace(XMIN,XMAX,100)
