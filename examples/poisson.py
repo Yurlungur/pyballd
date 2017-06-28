@@ -2,17 +2,19 @@
 
 """poisson.py
 Author: Jonah Miller (jonah.maxwell.miller@gmail.com)
-Time-stamp: <2017-05-18 12:00:08 (jmiller)>
+Time-stamp: <2017-06-28 15:22:37 (jmiller)>
 
 This is an example script that solves the Poisson equation using
 pyballd.
 """
 
 from __future__ import print_function
-import pyballd
-import numpy as np
 import matplotlib as mpl
 from matplotlib import pyplot as plt
+mpl.use("Agg")
+
+import pyballd
+import numpy as np
 
 r_h = 1.0
 k = 4
@@ -22,6 +24,7 @@ order_theta = 12
 exclude_last=1
 theta_max = np.pi/2
 rmax = 1.5
+USE_FIGS_DIR=False
 
 def residual(r,theta,u,d):
     u = u[0]
@@ -76,7 +79,10 @@ if __name__ == "__main__":
     plt.ylim(0,rmax)
     #plt.ylim(-rmax/,rmax/2)
     for postfix in ['.png','.pdf']:
-        plt.savefig('figs/poisson_solution'+postfix,
+        name = 'poisson_solution'+postfix
+        if USE_FIGS_DIR:
+            name = 'figs/' + name
+        plt.savefig(name,
                 bbox_inches='tight')
     plt.clf()
 

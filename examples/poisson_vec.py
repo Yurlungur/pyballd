@@ -2,17 +2,19 @@
 
 """poisson.py
 Author: Jonah Miller (jonah.maxwell.miller@gmail.com)
-Time-stamp: <2017-06-05 14:18:24 (jmiller)>
+Time-stamp: <2017-06-28 15:19:45 (jmiller)>
 
 This is an example script that solves the Poisson equation using
 pyballd.
 """
 
 from __future__ import print_function
-import pyballd
-import numpy as np
 import matplotlib as mpl
 from matplotlib import pyplot as plt
+mpl.use("Agg")
+
+import pyballd
+import numpy as np
 
 r_h = 1.0
 k = 4
@@ -77,13 +79,11 @@ if __name__ == "__main__":
     plt.ylim(0,rmax)
     #plt.ylim(-rmax/,rmax/2)
     for postfix in ['.png','.pdf']:
-        plt.savefig('figs/poisson_vec_solution'+postfix,
+        name = 'poisson_vec_solution'+postfix
+        if USE_FIGS_DIR:
+            name = 'figs/' + name
+        plt.savefig(name,
                     bbox_inches='tight')
         plt.clf()
 
-    R,THETA = s.get_coords_2d()
-    X,THETA = s.get_x2d()
-    np.savetxt('data/poisson_vec_solution.txt',SOLN)
-    np.savetxt('data/poisson_vec_X.txt',X)
-    np.savetxt('data/poisson_vec_R.txt',R)
-    np.savetxt('data/poisson_vec_THETA.txt',THETA)
+

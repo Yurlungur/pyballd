@@ -3,18 +3,20 @@
 """
 test_orthopoly.py
 Author: Jonah Miller (jonah.maxwell.miller@gmail.com)
-Time-stamp: <2017-05-18 09:58:29 (jmiller)>
+Time-stamp: <2017-06-28 15:18:52 (jmiller)>
 
 Tests the orthopoly module.
 """
 
 from __future__ import print_function
-import pyballd
-from pyballd.orthopoly import PseudoSpectralDiscretization2D
 import matplotlib as mpl
 from matplotlib import pyplot as plt
 import numpy as np
 mpl.rcParams.update({'font.size':12})
+mpl.use("Agg")
+
+import pyballd
+from pyballd.orthopoly import PseudoSpectralDiscretization2D
 
 XMIN,XMAX = -np.pi/2.,np.pi/2.
 YMIN,YMAX = 0,2*np.pi
@@ -57,7 +59,10 @@ def plot_test_function(orderx,ordery):
     cb = plt.colorbar()
     cb.set_label(label=r'$\cos(x)\sin(2 y)$',fontsize=16)
     for postfix in ['.png','.pdf']:
-        plt.savefig('figs/test_function'+postfix,
+        name = 'test_function'+postfix
+        if USE_FIGS_DIR:
+            name = 'figs/' + name
+        plt.savefig(name,
                     bbox_inches='tight')
     plt.clf()
 
@@ -68,7 +73,10 @@ def test_derivatives():
     plt.xlabel('order in y-direction',fontsize=16)
     plt.ylabel(r'$|E|_2$',fontsize=16)
     for postfix in ['.png','.pdf']:
-        plt.savefig('figs/orthopoly_errors'+postfix,
+        name = 'orthopoly_errors'+postfix
+        if USE_FIGS_DIR:
+            name = 'figs/' + name
+        plt.savefig(name,
                     bbox_inches='tight')
     plt.clf()
 
@@ -103,7 +111,10 @@ def plot_interpolation(orderx,ordery):
     plt.xlabel('x')
     plt.ylabel('y')
     for postfix in ['.png','.pdf']:
-        plt.savefig('figs/orthopoly_interpolated_function'+postfix,
+        name = 'orthopoly_interpolated_function'+postfix
+        if USE_FIGS_DIR:
+            name = 'figs/' + name
+        plt.savefig(name,
                     bbox_inches='tight')
     plt.clf()
 
@@ -116,7 +127,10 @@ def test_interpolation():
     plt.xlabel('order in y-direction',fontsize=16)
     plt.ylabel('max(interpolation error)',fontsize=16)
     for postfix in ['.png','.pdf']:
-        plt.savefig('figs/orthopoly_interp_errors'+postfix,
+        name = 'orthopoly_interp_errors'+postfix
+        if USE_FIGS_DIR:
+            name = 'figs/' + name
+        plt.savefig(name,
                     bbox_inches='tight')
     plt.clf()
 

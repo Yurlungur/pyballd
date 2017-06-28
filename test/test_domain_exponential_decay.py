@@ -2,17 +2,19 @@
 
 """test_domain.py
 Author: Jonah Miller (jonah.maxwell.miller@gmail.com)
-Time-stamp: <2017-05-18 11:20:53 (jmiller)>
+Time-stamp: <2017-06-28 15:18:30 (jmiller)>
 
 Tests the domain module of pyballd.
 """
 
 from __future__ import print_function
+import matplotlib as mpl
+from matplotlib import pyplot as plt
+mpl.use("Agg")
+
 import numpy as np
 import pyballd
 from pyballd.domain import PyballdDiscretization
-import matplotlib as mpl
-from matplotlib import pyplot as plt
 
 r_h = 1.
 THETA_MIN = 0
@@ -21,6 +23,7 @@ K=1
 TEST_FUNC_NAME=r'$\sin(\theta)r e^{-r/2}$'
 DR_TEST_FUNC_NAME=r'$\partial_r [\sin(\theta)re^{-r/2}]$'
 DR_DTHETA_TEST_FUNC_NAME=r'$\partial_r\partial_\theta [\sin(\theta)r e^{-r/2}]$'
+USE_FIGS_DIR=False
 
 def f(r,theta):
     out = np.sin(theta)*r*np.exp(-r/2.)
@@ -57,7 +60,10 @@ def test_func_and_derivative():
     plt.xlabel(r'$X$',fontsize=16)
     plt.ylabel(r'$\partial_r X$',fontsize=16)
     for postfix in ['.png','.pdf']:
-        plt.savefig('figs/domain_dXdr'+postfix,
+        name = 'domain_dXdr'+postfix
+        if USE_FIGS_DIR:
+            name = 'figs/' + name
+        plt.savefig(name,
                     bbox_inches='tight')
     plt.clf()
 
@@ -66,7 +72,10 @@ def test_func_and_derivative():
     plt.ylabel(TEST_FUNC_NAME,
                fontsize=16)
     for postfix in ['.png','.pdf']:
-        plt.savefig('figs/domain_test_function_exp'+postfix,
+        name = 'domain_test_function_exp'+postfix
+        if USE_FIGS_DIR:
+            name = 'figs/' + name
+        plt.savefig(name,
                     bbox_inches='tight')
     plt.clf()
 
@@ -79,7 +88,10 @@ def test_func_and_derivative():
     cb = plt.colorbar()
     cb.set_label(label=TEST_FUNC_NAME,fontsize=16)
     for postfix in ['.png','.pdf']:
-        plt.savefig('figs/domain_test_function_exp_2d'+postfix,
+        name = 'domain_test_function_exp_2d'+postfix
+        if USE_FIGS_DIR:
+            name = 'figs/' + name
+        plt.savefig(name,
                     bbox_inches='tight')
     plt.clf()
     
@@ -89,7 +101,10 @@ def test_func_and_derivative():
     plt.ylabel(DR_TEST_FUNC_NAME,fontsize=16)
     plt.legend()
     for postfix in ['.png','.pdf']:
-        plt.savefig('figs/deriv_domain_test_function_exp'+postfix,
+        name = 'deriv_domain_test_function_exp'+postfix
+        if USE_FIGS_DIR:
+            name = 'figs/' + name
+        plt.savefig(name,
                     bbox_inches='tight')
     plt.clf()
 
@@ -102,7 +117,10 @@ def test_func_and_derivative():
     cb.set_label(label=DR_DTHETA_TEST_FUNC_NAME,
                  fontsize=16)
     for postfix in ['.png','.pdf']:
-        plt.savefig('figs/deriv_domain_test_function_exp_2d'+postfix,
+        name = 'deriv_domain_test_function_exp_2d'+postfix
+        if USE_FIGS_DIR:
+            name = 'figs/' + name
+        plt.savefig(name,
                     bbox_inches='tight')
     plt.clf()
 
@@ -133,7 +151,10 @@ def test_errors():
     plt.ylabel('error',fontsize=16)
     plt.legend()
     for postfix in ['.png','.pdf']:
-        plt.savefig('figs/domain_pointwise_errors_exp'+postfix,
+        name = 'domain_pointwise_errors_exp'+postfix
+        if USE_FIGS_DIR:
+            name = 'figs/' + name
+        plt.savefig(name,
                     bbox_inches='tight')
     plt.clf()
 
@@ -141,7 +162,10 @@ def test_errors():
     plt.xlabel('order',fontsize=16)
     plt.ylabel(r'|error|$_\infty$',fontsize=16)
     for postfix in ['.png','.pdf']:
-        plt.savefig('figs/domain_l1_errors_exp'+postfix,
+        name = 'domain_l1_errors_exp'+postfix
+        if USE_FIGS_DIR:
+            name = 'figs/' + name
+        plt.savefig(name,
                     bbox_inches='tight')
     plt.clf()
 
@@ -149,7 +173,10 @@ def test_errors():
     plt.xlabel('order',fontsize=16)
     plt.ylabel(r'|error|$_\infty$',fontsize=16)
     for postfix in ['.png','.pdf']:
-        plt.savefig('figs/domain_l1_errors_loglog_exp'+postfix,
+        name = 'domain_l1_errors_loglog_exp'+postfix
+        if USE_FIGS_DIR:
+            name = 'figs/' + name
+        plt.savefig(name,
                     bbox_inches='tight')
     plt.clf()
 
