@@ -2,7 +2,7 @@
 
 """poisson.py
 Author: Jonah Miller (jonah.maxwell.miller@gmail.com)
-Time-stamp: <2017-06-28 15:22:37 (jmiller)>
+Time-stamp: <2017-06-28 15:28:45 (jmiller)>
 
 This is an example script that solves the Poisson equation using
 pyballd.
@@ -24,7 +24,7 @@ order_theta = 12
 exclude_last=1
 theta_max = np.pi/2
 rmax = 1.5
-USE_FIGS_DIR=False
+USE_FIGS_DIR=True
 
 def residual(r,theta,u,d):
     u = u[0]
