@@ -24,7 +24,7 @@ before_script:
 
 script:
   - python ./test/test_orthopoly.py
-  - python ./test/test_domain_algebraic_decay
-  - python ./test/test_orthopoly.py
+  - python ./test/test_domain_algebraic_decay.py
+  - python ./test/test_domain_exponential_decay.py
   - python ./examples/poisson.py
   - python ./examples/poisson_vec.py
