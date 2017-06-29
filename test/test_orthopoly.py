@@ -3,7 +3,7 @@
 """
 test_orthopoly.py
 Author: Jonah Miller (jonah.maxwell.miller@gmail.com)
-Time-stamp: <2017-06-28 20:26:54 (jmiller)>
+Time-stamp: <2017-06-28 20:30:18 (jmiller)>
 
 Tests the orthopoly module.
 """
@@ -23,6 +23,7 @@ YMIN,YMAX = 0,2*np.pi
 KX = 1
 KY = 2
 X_OVER_Y = 2
+USE_FIGS_DIR=False
 
 f = lambda x,y: np.cos(KX*x)*np.sin(KY*y)
 dfdx = lambda x,y: -KX*np.sin(KX*x)*np.sin(KY*y)
