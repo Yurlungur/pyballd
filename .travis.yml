@@ -15,6 +15,13 @@ install:
   - pip install --only-binary=numpy,scipy numpy scipy matplotlib
   - python setup.py install
 
+before_script:
+  - |
+    if [[ $TRAVIS_OS_NAME != 'osx' ]]; then
+      export DISPLAY=:99.0
+      sh -e /etc/init.d/xvfb start
+    fi
+
 script:
   - python ./test/test_orthopoly.py
   - python ./test/test_domain_algebraic_decay
