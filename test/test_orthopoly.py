@@ -3,17 +3,17 @@
 """
 test_orthopoly.py
 Author: Jonah Miller (jonah.maxwell.miller@gmail.com)
-Time-stamp: <2017-06-28 15:18:52 (jmiller)>
+Time-stamp: <2017-06-28 20:26:54 (jmiller)>
 
 Tests the orthopoly module.
 """
 
 from __future__ import print_function
 import matplotlib as mpl
+mpl.use("Agg")
 from matplotlib import pyplot as plt
 import numpy as np
 mpl.rcParams.update({'font.size':12})
-mpl.use("Agg")
 
 import pyballd
 from pyballd.orthopoly import PseudoSpectralDiscretization2D

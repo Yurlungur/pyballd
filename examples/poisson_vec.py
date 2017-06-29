@@ -2,7 +2,7 @@
 
 """poisson.py
 Author: Jonah Miller (jonah.maxwell.miller@gmail.com)
-Time-stamp: <2017-06-28 15:29:01 (jmiller)>
+Time-stamp: <2017-06-28 20:27:28 (jmiller)>
 
 This is an example script that solves the Poisson equation using
 pyballd.
@@ -10,8 +10,8 @@ pyballd.
 
 from __future__ import print_function
 import matplotlib as mpl
-from matplotlib import pyplot as plt
 mpl.use("Agg")
+from matplotlib import pyplot as plt
 
 import pyballd
 import numpy as np

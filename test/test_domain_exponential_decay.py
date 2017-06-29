@@ -2,15 +2,15 @@
 
 """test_domain.py
 Author: Jonah Miller (jonah.maxwell.miller@gmail.com)
-Time-stamp: <2017-06-28 15:18:30 (jmiller)>
+Time-stamp: <2017-06-28 20:27:13 (jmiller)>
 
 Tests the domain module of pyballd.
 """
 
 from __future__ import print_function
 import matplotlib as mpl
-from matplotlib import pyplot as plt
 mpl.use("Agg")
+from matplotlib import pyplot as plt
 
 import numpy as np
 import pyballd
